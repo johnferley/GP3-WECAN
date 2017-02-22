@@ -1,0 +1,13 @@
+h1{ 
+	text-align: center;
+	font-family: Calibri;
+}
+p{
+	text-align: center;
+}
+#lisa {
+	display: block;
+	padding-top: 20px;
+	margin-left: auto;
+	margin-right: auto;
+}
