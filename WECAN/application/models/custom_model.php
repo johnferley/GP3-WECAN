@@ -8,9 +8,7 @@ class custom_model extends grocery_CRUD_Model {
     }
 
     /*
-    Possible replace get_list and set_sql_str with custom code for a many-many relation with compound key
-    Use CodeIgnitor to set where, order_by etc
-    See https://www.codeigniter.com/userguide3/database/query_builder.html
+    Possible errors when filtering
     */
     function get_list() {
         $query = $this->db->query($this->sql_str);
@@ -22,6 +20,7 @@ class custom_model extends grocery_CRUD_Model {
     public function set_sql_str($sql_str) {
         $this->sql_str = $sql_str;
     }
+
 
 }
 ?>
