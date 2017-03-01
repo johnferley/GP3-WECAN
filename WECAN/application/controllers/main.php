@@ -17,6 +17,14 @@ class Main extends CI_Controller {
 		$this->load->view('home');
 	}
 
+	public function clear_temp_tables()
+	{
+		if ($this->db->table_exists('temp_fixture_venue'))
+		{
+			$this->db->query("DROP TABLE temp_fixture_venue");
+		}
+	}
+
 	public function competitor()
 	{
 		$this->load->view('header');
@@ -25,8 +33,8 @@ class Main extends CI_Controller {
 		$crud->set_table('competitor');
 		$crud->set_subject('Competitor');
 		$crud->columns('competitorID', 'Title_titleID', 'competitorFirstName', 'competitorLastName', 'competitorDOB', 'competitorPhoto', 'Team_teamID', 'Role_roleID');
-		$crud->fields('competitorFirstName', 'Title_titleID', 'competitorLastName', 'competitorDOB', 'competitorPhoto', 'Team_teamID', 'Role_roleID');
-		$crud->required_fields('competitorID', 'competitorFirstName', 'competitorLastName', 'competitorDOB', 'competitorPhoto', 'Team_teamID', 'Role_roleID', 'Title_titleID');
+		$crud->fields('Title_titleID', 'competitorFirstName', 'competitorLastName', 'competitorDOB', 'competitorPhoto', 'Team_teamID', 'Role_roleID');
+		$crud->required_fields('competitorID', 'competitorFirstName', 'competitorLastName', 'Team_teamID', 'Role_roleID', 'Title_titleID');
 		$crud->set_relation('Team_teamID','team','teamName');
 		$crud->set_relation('Role_roleID','role','roleDescription');
 		$crud->set_relation('Title_titleID','title','titleText');
@@ -52,30 +60,24 @@ class Main extends CI_Controller {
 	{
 		$this->load->view('header');
 		$crud = new grocery_CRUD();
-		/*
-		Custom model using CodeIgnitor, contains a new function to run an sql query based on a provided string
-		Possibly need to add code to handle record count and filters
-		Based on http://www.grocerycrud.com/forums/topic/1963-simple-guide-to-executing-custom-queries/
-		*/
-		//$crud->set_model('custom_model');
 		$crud->set_theme('datatables');
+		// Create temporary table using SQL
+		$this->clear_temp_tables();
+		$this->db->query("CREATE TABLE temp_fixture_venue (PRIMARY KEY (fixtureID)) SELECT fixture.fixtureID, fixture.fixtureDate,  venue.venueName,  venue.venueStadium FROM venue JOIN fixture ON venue.venueID = fixture.Venue_venueID");
 		$crud->set_table('card');
 		$crud->set_subject('Card');
-		$crud->columns('issueNo', 'Competitor_competitorID', 'cardIssueDate', 'cardExpiryDate', 'cardValid','auth');
+		$crud->columns('cardID', 'Competitor_competitorID', 'issueNo', 'cardIssueDate', 'cardExpiryDate', 'cardValid','auth');
 		$crud->fields('Competitor_competitorID', 'cardIssueDate', 'cardExpiryDate', 'cardValid','auth');
-		// Compound primary key Competitor_competitorID and issueNo
-		//$crud->set_relation_n_n('auth', 'authorisation', 'fixture', 'Card_Competitor_competitorID', 'Fixture_fixtureID', 'fixtureDate');
-		// Custom function to display table based on sql string
-		//$crud->basic_model->set_sql_str('SELECT * FROM card');
-		$crud->required_fields('issueNo', 'Competitor_competitorID', 'cardIssueDate', 'cardExpiryDate', 'cardValid');
+		$crud->set_relation_n_n('auth', 'authorisation', 'temp_fixture_venue', 'Card_cardID', 'Fixture_fixtureID', '{fixtureDate}, {venueName}, {venueStadium}');
+		$crud->required_fields('cardID', 'issueNo', 'Competitor_competitorID', 'cardIssueDate', 'cardExpiryDate', 'cardValid');
 		$crud->set_relation('Competitor_competitorID','competitor','{competitorLastName}, {competitorFirstName}');
+		$crud->display_as('cardID','Card ID');
 		$crud->display_as('issueNo', 'Issue No.');
 		$crud->display_as('Competitor_competitorID', 'Competitor');
 		$crud->display_as('cardIssueDate', 'Issue Date');
 		$crud->display_as('cardExpiryDate', 'Expiry Date');
 		$crud->display_as('cardValid', 'Valid');
-		$crud->display_as('auth', 'Authorisations');
-
+		$crud->display_as('auth', 'Fixtures');
 		$output = $crud->render();
 		$this->card_output($output);
 	}
