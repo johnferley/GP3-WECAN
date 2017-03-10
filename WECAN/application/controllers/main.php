@@ -17,12 +17,48 @@ class Main extends CI_Controller {
 		$this->load->view('home');
 	}
 
-	public function clear_temp_tables()
+	public function update_card()
 	{
-		if ($this->db->table_exists('temp_fixture_venue'))
+		$cardToEdit = $this->input->post('cardIDBox');
+		$query = $this->db->query("SELECT * FROM card WHERE cardID = ".$cardToEdit);
+		foreach ($query->result() as $row)
 		{
-			$this->db->query("DROP TABLE temp_fixture_venue");
+			$maxissue = $this->db->query("SELECT MAX(issueNo) AS maximum FROM card WHERE Competitor_competitorID = ".$row->Competitor_competitorID);
+			foreach ($maxissue->result() as $issuerow)
+			{
+				$maxvalue = $issuerow->maximum;
+			}
+			if ($row->issueNo < $maxvalue)
+			{
+				$this->db->query("UPDATE card SET cardValid = FALSE WHERE cardID = ".$row->cardID);
+			}
 		}
+		redirect('main/card','refresh'); 
+	}
+
+	public function update_authorisations()
+	{
+		$card = $this->db->query("SELECT * FROM card WHERE cardValid = 1");
+		foreach ($card->result() as $row)
+		{
+			$compID = $row->Competitor_competitorID;
+			$team = $this->db->query("SELECT Team_teamID FROM competitor WHERE competitorID = ".$compID);
+			foreach ($team->result() as $teamrow)
+			{
+				$teamID = $teamrow->Team_teamID;
+			}
+			$fixtures = $this->db->query("SELECT Fixture_fixtureID FROM team_has_fixture WHERE Team_teamID = ".$teamID);
+			foreach ($fixtures->result() as $fixturerow)
+			{
+				$check = $this->db->query("SELECT * FROM authorisation WHERE Fixture_fixtureID = ".$fixturerow->Fixture_fixtureID." AND Card_cardID = ".$row->cardID);
+				$checkcount = $check->num_rows();
+				if ($checkcount = 0)
+				{
+					$this->db->query("INSERT INTO authorisation (Fixture_fixtureID, Card_cardID) VALUES (".$fixturerow->Fixture_fixtureID.",".$row->cardID.")");
+				}
+			}
+		}
+		redirect('main/card','refresh'); 
 	}
 
 	public function competitor()
@@ -62,8 +98,8 @@ class Main extends CI_Controller {
 		$crud = new grocery_CRUD();
 		$crud->set_theme('datatables');
 		// Create temporary table using SQL
-		$this->clear_temp_tables();
-		$this->db->query("CREATE TABLE temp_fixture_venue (PRIMARY KEY (fixtureID)) SELECT fixture.fixtureID, fixture.fixtureDate,  venue.venueName,  venue.venueStadium FROM venue JOIN fixture ON venue.venueID = fixture.Venue_venueID");
+		$this->db->query("DROP TABLE IF EXISTS temp_fixture_venue");
+		$this->db->query("CREATE TEMPORARY TABLE temp_fixture_venue (PRIMARY KEY (fixtureID)) SELECT fixture.fixtureID, fixture.fixtureDate,  venue.venueName,  venue.venueStadium FROM venue JOIN fixture ON venue.venueID = fixture.Venue_venueID");
 		$crud->set_table('card');
 		$crud->set_subject('Card');
 		$crud->columns('cardID', 'Competitor_competitorID', 'issueNo', 'cardIssueDate', 'cardExpiryDate', 'cardValid','auth');
