@@ -1,0 +1,8 @@
+2017-03-09 16:25:58 248 [Note] Found 0 of 1 rows when repairing '.\wecan\competitor'
+2017-03-09 17:24:38 248 [Note] G:\EasyPHP\binaries\mysql\bin\eds-mysqld.exe: Normal shutdown
+
+2017-03-09 17:24:38 248 [Note] Giving 4 client threads a chance to die gracefully
+2017-03-09 17:24:38 248 [Note] Event Scheduler: Purging the queue. 0 events
+2017-03-09 17:24:38 248 [Note] Shutting down slave threads
+2017-03-09 17:24:40 248 [Note] Forcefully disconnecting 0 remaining clients
+2017-03-09 17:24:40 248 [Note] Binlog end
