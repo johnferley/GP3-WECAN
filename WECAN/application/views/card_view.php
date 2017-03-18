@@ -9,6 +9,7 @@
 		#f li {float: top;}
 		#f li button { width: 100%; margin: 0 0 3px 0; font-size: 15px; display: block; padding: 8px 15px; font-weight: bold; text-decoration: none; color: #000; background-color: #f2f2f2; border: 1px solid #c1c1c1;}
 		#f li button:hover {background-color: #cccccc;}
+		body {margin:0; }
 	</style>
 <?php
 foreach($css_files as $file): ?>
@@ -24,11 +25,11 @@ foreach($css_files as $file): ?>
     <div>
 		<?php echo $output; ?>
     </div>
+	<!--
 	<div id="buttons">
 		<ul id="f">
 		<form action="<?php echo site_url('main/update_card')?>" method="post">
 		<li><button type="submit">Update Card Validity</button></li>
-		<li><input type="text" name="cardIDBox" placeholder="Enter Card ID" /><li>
 		</form>
 		<form action="<?php echo site_url('main/update_authorisations')?>" method="post">
 		<li><button type="submit">Update Authorisations</button></li>
@@ -50,6 +51,7 @@ if (/edit/.test(window.location.href))
 	document.getElementById('buttons').style.display = 'none'
 }
 </script>
+	-->
 
 </body>
 </html>

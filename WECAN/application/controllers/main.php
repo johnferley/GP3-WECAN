@@ -17,10 +17,15 @@ class Main extends CI_Controller {
 		$this->load->view('home');
 	}
 
+	public function update_all()
+	{
+		$this->update_card();
+		$this->update_authorisations();
+	}
+
 	public function update_card()
 	{
-		$cardToEdit = $this->input->post('cardIDBox');
-		$query = $this->db->query("SELECT * FROM card WHERE cardID = ".$cardToEdit);
+		$query = $this->db->query("SELECT * FROM card WHERE cardValid = TRUE");
 		foreach ($query->result() as $row)
 		{
 			$maxissue = $this->db->query("SELECT MAX(issueNo) AS maximum FROM card WHERE Competitor_competitorID = ".$row->Competitor_competitorID);
@@ -33,16 +38,15 @@ class Main extends CI_Controller {
 				$this->db->query("UPDATE card SET cardValid = FALSE WHERE cardID = ".$row->cardID);
 			}
 		}
-		redirect('main/card','refresh'); 
 	}
 
 	public function update_authorisations()
 	{
-		$card = $this->db->query("SELECT * FROM card WHERE cardValid = 1");
+		$card = $this->db->query("SELECT * FROM card WHERE cardValid = TRUE");
 		foreach ($card->result() as $row)
 		{
 			$compID = $row->Competitor_competitorID;
-			$team = $this->db->query("SELECT Team_teamID FROM competitor WHERE competitorID = ".$compID);
+			$team = $this->db->query("SELECT Team_teamID FROM competitor WHERE competitorID = ".$compID." LIMIT 1");
 			foreach ($team->result() as $teamrow)
 			{
 				$teamID = $teamrow->Team_teamID;
@@ -52,20 +56,20 @@ class Main extends CI_Controller {
 			{
 				$check = $this->db->query("SELECT * FROM authorisation WHERE Fixture_fixtureID = ".$fixturerow->Fixture_fixtureID." AND Card_cardID = ".$row->cardID);
 				$checkcount = $check->num_rows();
-				if ($checkcount = 0)
+				if ($checkcount == 0)
 				{
 					$this->db->query("INSERT INTO authorisation (Fixture_fixtureID, Card_cardID) VALUES (".$fixturerow->Fixture_fixtureID.",".$row->cardID.")");
 				}
 			}
 		}
-		redirect('main/card','refresh'); 
 	}
 
 	public function competitor()
 	{
 		$this->load->view('header');
+		$this->update_all();
 		$crud = new grocery_CRUD();
-		$crud->set_theme('datatables');
+		$crud->set_theme('flexigrid');
 		$crud->set_table('competitor');
 		$crud->set_subject('Competitor');
 		$crud->columns('competitorID', 'Title_titleID', 'competitorFirstName', 'competitorLastName', 'competitorDOB', 'competitorPhoto', 'Team_teamID', 'Role_roleID');
@@ -95,8 +99,9 @@ class Main extends CI_Controller {
 	public function card()
 	{
 		$this->load->view('header');
+		$this->update_all();
 		$crud = new grocery_CRUD();
-		$crud->set_theme('datatables');
+		$crud->set_theme('flexigrid');
 		// Create temporary table using SQL
 		$this->db->query("DROP TABLE IF EXISTS temp_fixture_venue");
 		$this->db->query("CREATE TEMPORARY TABLE temp_fixture_venue (PRIMARY KEY (fixtureID)) SELECT fixture.fixtureID, fixture.fixtureDate,  venue.venueName,  venue.venueStadium FROM venue JOIN fixture ON venue.venueID = fixture.Venue_venueID");
@@ -126,8 +131,9 @@ class Main extends CI_Controller {
 		public function venue()
 	{
 		$this->load->view('header');
+		$this->update_all();
 		$crud = new grocery_CRUD();
-		$crud->set_theme('datatables');
+		$crud->set_theme('flexigrid');
 		$crud->set_table('venue');
 		$crud->set_subject('Venue');
 		$crud->columns('venueID','venueName', 'venueStadium');
@@ -149,8 +155,9 @@ class Main extends CI_Controller {
 	public function fixture()
 	{
 		$this->load->view('header');
+		$this->update_all();
 		$crud = new grocery_CRUD();
-		$crud->set_theme('datatables');
+		$crud->set_theme('flexigrid');
 		$crud->set_table('fixture');
 		$crud->set_subject('Fixture');
 		$crud->columns('fixtureID', 'fixtureDate', 'Venue_venueID','teams');
@@ -175,8 +182,9 @@ class Main extends CI_Controller {
 	public function nfa()
 	{
 		$this->load->view('header');
+		$this->update_all();
 		$crud = new grocery_CRUD();
-		$crud->set_theme('datatables');
+		$crud->set_theme('flexigrid');
 		$crud->set_table('nfa');
 		$crud->set_subject('NFA');
 		$crud->columns('nfaID', 'nfaName', 'nfaAcronym');
@@ -199,8 +207,9 @@ class Main extends CI_Controller {
 	public function card_access_log()
 	{
 		$this->load->view('header');
+		$this->update_all();
 		$crud = new grocery_CRUD();
-		$crud->set_theme('datatables');
+		$crud->set_theme('flexigrid');
 		$crud->set_table('card_access_log');
 		$crud->set_subject('Access Log');
 		$crud->columns('accessID', 'accessDate', 'accessAuthorised', 'Venue_venueID', 'Card_issueNo', 'Card_Competitor_competitorID');
@@ -229,8 +238,9 @@ class Main extends CI_Controller {
 	public function issue_log()
 	{
 		$this->load->view('header');
+		$this->update_all();
 		$crud = new grocery_CRUD();
-		$crud->set_theme('datatables');
+		$crud->set_theme('flexigrid');
 		$crud->set_table('issue_log');
 		$crud->set_subject('Issue Log');
 		$crud->columns('issueID', 'issueDescription', 'issueRasiedBy', 'issueRaisedDate', 'issueClosedDate', 'issueClosed', 'Venue_venueID');
@@ -257,8 +267,9 @@ class Main extends CI_Controller {
 	public function team()
 	{
 		$this->load->view('header');
+		$this->update_all();
 		$crud = new grocery_CRUD();
-		$crud->set_theme('datatables');
+		$crud->set_theme('flexigrid');
 		$crud->set_table('team');
 		$crud->set_subject('Team');
 		$crud->columns('teamID', 'teamName', 'teamNickname', 'NFA_nfaID','fixtures');
