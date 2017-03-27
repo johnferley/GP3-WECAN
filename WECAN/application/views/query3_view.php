@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
 	<meta charset="utf-8" />
@@ -21,18 +22,20 @@
     <button type="submit" onclick="location.href='<?php echo site_url('main/query1')?>'">display entry attempts</button>
     <button type="submit" onclick="location.href='<?php echo site_url('main/query7')?>'">Display log of all entries</button>
 </div>
-<form action= "<?php echo site_url ('main/authCheck')?>" method = 'post'>
+<form action= "<?php echo site_url ('main/compVenueCheck')?>" method = 'post'>
     <?php 
         $cardIDs = "";
         $swipeDate = "";
         $swipeVenue = "";
 		$fixtureIDs = "";
+		$compIDs = "";
         
         
         $cardList = mysql_query('select * from card');          // get the whole card list
         $dateList = "<input type = 'date' name = 'dateList'>";  // get a list of dates named dateList
         $venueList = mysql_query ('select * from venue');       // get a list of all venues
 		$fixtureSel = mysql_query('SELECT * FROM fixture');
+		$compSel = mysql_query('SELECT * FROM competitor');
         
             while ($row = mysql_fetch_array($cardList))                 // loop through card table
             {
@@ -49,17 +52,19 @@
             {
                 $fixtureIDs .= "<option>". $row['fixtureID']. "</option>";  // add the row's venue name to swipeVenue
             }
+			
+			while ($row = mysql_fetch_array($compSel))                    //loop through the venue table
+            {
+                $compIDs .= "<option value =" . $row['competitorID'] . ">". $row['competitorFirstName']. " ". $row['competitorLastName'] .  "</option>";  // add the row's venue name to swipeVenue
+            }
             
             
-                echo ('CardID: '.
-                "<select name='cardSelected'>
-                    " . $cardIDs . 
-                "</select>");       //list of card IDs
+                echo ('CompetitorID: '.
+                "<select name='compSelected'>
+                    " . $compIDs . 
+                "</select>");       //list of competitor IDs
                 
-                echo('Fixture '.
-                    "<select name='fixtureSelected'>
-                    " . $fixtureIDs . 
-                "</select>");       // selet fixture
+                
                 
                 
                 

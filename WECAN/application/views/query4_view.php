@@ -13,26 +13,29 @@
 
 <h1>Queries</h1>
 <div align='center'>
-	<button type="submit" onclick="location.href='<?php echo site_url('main/query1')?>'">Search by card for authorisation to access venue for match</button> <!--></-->
-	<button type="submit" onclick="location.href='<?php echo site_url('main/query2')?>'">All competitors who have access to venue for match</button> 
-    <button type="submit" onclick="location.href='<?php echo site_url('main/query3')?>'">All venues accessible by a given competitor</button>
-    <button type="submit" onclick="location.href='<?php echo site_url('main/query4')?>'">Allow card to enter venue because they have match authorisation</button>
-    <button type="submit" onclick="location.href='<?php echo site_url('main/query1')?>'">prevent unorthorised or invalid cards from entering match</button>
-    <button type="submit" onclick="location.href='<?php echo site_url('main/query1')?>'">display entry attempts</button>
-    <button type="submit" onclick="location.href='<?php echo site_url('main/query7')?>'">Display log of all entries</button>
+
+    
+  
 </div>
-<form action= "<?php echo site_url ('main/authCheck')?>" method = 'post'>
+<h2>Swipe Simulator</h2>
+<div align='center'>
+
+
+
+
+
+
+
+<form action= "<?php echo site_url ('main/fixtureSwipe')?>" method = 'post'>
     <?php 
         $cardIDs = "";
         $swipeDate = "";
         $swipeVenue = "";
-		$fixtureIDs = "";
         
         
         $cardList = mysql_query('select * from card');          // get the whole card list
         $dateList = "<input type = 'date' name = 'dateList'>";  // get a list of dates named dateList
         $venueList = mysql_query ('select * from venue');       // get a list of all venues
-		$fixtureSel = mysql_query('SELECT * FROM fixture');
         
             while ($row = mysql_fetch_array($cardList))                 // loop through card table
             {
@@ -44,11 +47,6 @@
             {
                 $swipeVenue .= "<option value=". $row['venueID'].">" . $row['venueName']. "</option>";  // add the row's venue name to swipeVenue
             }
-			
-			while ($row = mysql_fetch_array($fixtureSel))                    //loop through the venue table
-            {
-                $fixtureIDs .= "<option>". $row['fixtureID']. "</option>";  // add the row's venue name to swipeVenue
-            }
             
             
                 echo ('CardID: '.
@@ -56,17 +54,25 @@
                     " . $cardIDs . 
                 "</select>");       //list of card IDs
                 
-                echo('Fixture '.
-                    "<select name='fixtureSelected'>
-                    " . $fixtureIDs . 
-                "</select>");       // selet fixture
+                echo ('Date: '. $dateList); // list of dates
+                
+                echo('Venue '.
+                    "<select name='venueSelected'>
+                    " . $swipeVenue . 
+                "</select>");       // selet venue
                 
                 
                 
             
     ?>
-    <button type="submit">GOOOOO!!</button>
+    <button type="submit">SWIIPE!!</button>
 </form>;
+<!-->
+    Error when date is empty, 
+	Cannot add 0 rows
+    
+</-->
+    
 </div>
 </body>
 </html>

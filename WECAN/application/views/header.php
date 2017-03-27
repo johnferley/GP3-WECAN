@@ -32,7 +32,7 @@
 			<ul id="rightnav">
 			<li><a id='logout' href='<?php echo site_url('main/logout')?>'>Logout</a></li>
 			<li><a id='account' href='<?php echo site_url('')?>'>Account</a></li>
-			<!--<li><a href='<?php echo site_url('main/querynav')?>'>Queries</a></li>-->
+			<li><a href='<?php echo site_url('main/querynav')?>'>QueryTest</a></li>
 			</ul>
 		</ul>
 	</div>
