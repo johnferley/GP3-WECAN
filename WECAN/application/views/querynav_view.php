@@ -11,8 +11,13 @@
 
 <h1>Queries</h1>
 <div align='center'>
-	<button type="submit" onclick="location.href='<?php echo site_url('main/query1')?>'">Total customer orders</button>
-	<button type="submit" onclick="location.href='<?php echo site_url('main/query2')?>'">Ranked items by sales</button>
+    <button type="submit" onclick="location.href='<?php echo site_url('main/query1')?>'">Search by card for authorisation to access venue for match</button>
+	<button type="submit" onclick="location.href='<?php echo site_url('main/query2')?>'">All competitors who have access to venue for match</button>
+    <button type="submit" onclick="location.href='<?php echo site_url('main/query3')?>'">All venues accessible by a given competitor</button>
+    <button type="submit" onclick="location.href='<?php echo site_url('main/query4')?>'">Allow card to enter venue because they have match authorisation</button>
+    <button type="submit" onclick="location.href='<?php echo site_url('main/query2')?>'">prevent unorthorised or invalid cards from entering match</button>
+    <button type="submit" onclick="location.href='<?php echo site_url('main/query_entryAttempts')?>'">display entry attempts</button>
+    <button type="submit" onclick="location.href='<?php echo site_url('main/query_entryLog')?>'">Display log of all entries</button>
 </div>
     
 </body>
