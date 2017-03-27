@@ -28,7 +28,7 @@
 			<ul id="rightnav">
 			<li><a href='<?php echo site_url('main/blank')?>'>Logout</a></li>
 			<li><a href='<?php echo site_url('main/blank')?>'>Account</a></li>
-			<!--<li><a href='<?php echo site_url('main/querynav')?>'>Queries</a></li>-->
+			<li><a href='<?php echo site_url('main/querynav')?>'>QueryTest</a></li>
 			</ul>
 		</ul>
 	</div>

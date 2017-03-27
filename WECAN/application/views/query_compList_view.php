@@ -21,7 +21,7 @@
     <button type="submit" onclick="location.href='<?php echo site_url('main/query1')?>'">display entry attempts</button>
     <button type="submit" onclick="location.href='<?php echo site_url('main/query7')?>'">Display log of all entries</button>
 </div>
-<form action= "<?php echo site_url ('main/authCheck')?>" method = 'post'>
+<form action= "<?php echo site_url ('main/compList')?>" method = 'post'>
     <?php 
         $cardIDs = "";
         $swipeDate = "";
@@ -50,11 +50,6 @@
                 $fixtureIDs .= "<option>". $row['fixtureID']. "</option>";  // add the row's venue name to swipeVenue
             }
             
-            
-                echo ('CardID: '.
-                "<select name='cardSelected'>
-                    " . $cardIDs . 
-                "</select>");       //list of card IDs
                 
                 echo('Fixture '.
                     "<select name='fixtureSelected'>

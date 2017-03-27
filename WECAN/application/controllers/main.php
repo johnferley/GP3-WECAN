@@ -254,15 +254,176 @@ class Main extends CI_Controller {
 
 	public function query1()
 	{
+		$cardSelected = $this->input->post('cardSelected');
 		$this->load->view('header');
 		$this->load->view('query1_view');
+		
+		
 	}
 
 	public function query2()
 	{
 		$this->load->view('header');
-		$this->load->view('query2_view');
+		$this->load->view('query_compList_view');
 	}
+    
+        public function query3()
+	{
+		$this->load->view('header');
+		$this->load->view('query3_view');
+	}
+    
+    public function query4()
+	{
+		$this->load->view('header');
+		$this->load->view('query4_view');
+	}
+	
+	
+    
+   /* public function cardSwipe()
+	{
+	   $cardSelected = $this->input->post('cardSelected');
+       $dateList = $this->input->post('dateList');
+       $venueSelected = $this->input->post('venueSelected');
+       
+       echo $dateList; // check if sateList is working
+       
+       $fixtureList = $this->db->query('SELECT * FROM fixture where Venue_venueID = '. $venueSelected.' and fixtureDate = DATE('. $dateList. ') LIMIT 1');
+			// fixtureList lists matches at the SELECTED DATE and VENUE
+	   
+       $authorisationList = $this->db->query('SELECT * FROM title WHERE titleText = "Yippee"');
+       foreach($fixtureList->result() as $fixtureRows)
+       {
+            $authorisationList = $this->db->query('SELECT * FROM authorisation WHERE Fixture_fixtureID = '. $fixtureRows->fixtureID. ' and Card_cardID = '. $cardSelected);
+				// Loop through fixtureList and SELECT the CARDS who have access to the FIXTURE
+       }
+       
+       $authCount = $authorisationList->num_rows();
+			// # of rows in where CARDS have access to selected FIXTURE
+       if ($authCount > 0)
+       {
+        $authorised = 1;
+       }
+       else{
+        $authorised = 0;
+       }
+       
+        $this->db->query('INSERT INTO card_access_log(accessDate, accessAuthorised, Venue_venueID, Card_cardID) values(DATE('. $dateList. '),'. $authorised. ','. $venueSelected.','. $cardSelected. ')');
+        //echo 'INSERT INTO card_access_log(accessDate, accessAuthorised, Venue_venueID, Card_cardID) values('. $dateList. ','. $authorised. ','. $venueSelected.','. $cardSelected. ')';
+	}*/
+	
+	public function compVenueCheck()
+	{
+		$compSelected = $this->input->post('compSelected');
+		//echo $compSelected;
+		$compCanAccess = $this->db->query('SELECT venue.venueName, fixture.fixtureDate FROM competitor
+											JOIN team_has_fixture ON team_has_fixture.Team_teamID = competitor.Team_teamID
+											JOIN fixture ON fixture.fixtureID = team_has_fixture.Fixture_FixtureID
+											JOIN venue ON fixture.Venue_venueID = venue.venueID
+												WHERE competitorID = ' . $compSelected);
+		
+		echo $this->table->generate($compCanAccess);
+		$this->load->view('querynav_view');
+	}
+	
+	public function compList()
+	{
+		$fixtureSelected = $this->input->post('fixtureSelected');
+		
+		$compsAtFixture = $this->db->query('SELECT Competitor_competitorID, competitorFirstName, competitorLastName FROM card
+											JOIN competitor ON card.Competitor_competitorID = competitor.competitorID
+											JOIN team_has_fixture ON competitor.Team_teamID = team_has_fixture.Team_teamID
+												WHERE Fixture_FixtureID = ' . $fixtureSelected . '');
+		
+		echo $this->table->generate($compsAtFixture);
+		$this->load->view('querynav_view');
+	}
+	
+	public function authCheck()
+	{
+		$cardSelected = $this->input->post('cardSelected');
+		$fixtureSelected = $this->input->post('fixtureSelected');
+		
+		$cardAtFixture = $this->db->query('SELECT cardValid FROM card
+											JOIN competitor ON card.Competitor_competitorID = competitor.competitorID
+											JOIN team_has_fixture ON competitor.Team_teamID = team_has_fixture.Team_teamID
+												WHERE cardID = '. $cardSelected . ' AND Fixture_fixtureID = ' . $fixtureSelected . '');
+		
+		
+		echo $this->table->generate($cardAtFixture);
+		
+		if ($cardAtFixture->num_rows() > 0){
+			echo ('This card is Valid!!!');
+		}else{
+			echo 'CARD NOT VALID';
+		}
+		$this->load->view('querynav_view');
+	}
+	public function fixtureSwipe()
+	{
+		$cardSelected = $this->input->post('cardSelected');
+		$dateList = $this->input->post('dateList');
+		$venueSelected = $this->input->post('venueSelected');
+		$authorised = 0;
+       
+		echo 'DateList is ' . $dateList . ' '; // check if sateList is working
+		echo 'VenueSelected is ' . $venueSelected; // check venue
+       
+		$fixtureList = $this->db->query('SELECT * FROM Fixture WHERE fixtureDate = DATE "' . $dateList . '" AND Venue_venueID = '. $venueSelected .' LIMIT 1');
+	   
+		echo $this->table->generate($fixtureList);
+		//echo $fixtureInRange;
+			// fixtureList lists matches at the selected DATE and VENUE
+			
+
+		foreach($fixtureList->result() as $fixtureRows)
+		
+			{
+				if ($fixtureList = true){
+					$authList = $this->db->query('SELECT * FROM authorisation WHERE Fixture_FixtureID = ' . $fixtureRows->fixtureID . ' AND Card_CardID = '. $cardSelected .'');
+					echo  'authList ' . $this->table->generate($authList);
+					$authorised = 1;
+				}else{
+					$authorised = 0;
+				}
+			}
+		
+		
+		$this->db->query('INSERT INTO card_access_log (accessDate, accessAuthorised, Venue_venueID, Card_cardID) VALUES (DATE "' . $dateList .'", ' . $authorised . ', ' . $venueSelected . ', ' . $cardSelected. ')');
+    
+		$this->load->view('querynav_view');
+		// Errors when swiping again after loading this view. Might need temp tables?
+       
+       
+			// # of rows in where CARDS have access to selected FIXTURE
+       
+       
+        
+	}
+    public function displayTable()
+    {
+           
+    }
+	public function query_entryAttempts()
+	{
+		$this->load->view('header');
+		$this->load->view('query_entryAttempts_view');
+	}
+	
+	public function query_entryLog()
+	{
+		$this->load->view('header');
+		$this->load->view('query_entryLog_view');
+	}
+    
+    public function query7()
+	{
+		$this->load->view('header');
+		$this->load->view('query7_view');
+	}
+    
+    
 
 	public function blank()
 	{
