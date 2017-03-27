@@ -40,7 +40,7 @@
 
 //HP - call the name of the controller you want to load up so that the url can be the name of the application folder in localweb
 // e.g. localhost:8080/codeigniter
-$route['default_controller'] = "main";
+$route['default_controller'] = "login";
 $route['404_override'] = '';
 
 
