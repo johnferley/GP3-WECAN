@@ -4,11 +4,11 @@
 	<meta charset="utf-8" />
 	<style>
 		h1 {text-align: center; font-family: Calibri;}
-		#f {font-family: Arial; font-size: 14px; width: 100%; float: left; margin: 0 0 0 0; padding: 0; list-style: none;}
-		#f {list-style: none; border:0;}
-		#f li {float: top;}
-		#f li button { width: 100%; margin: 0 0 3px 0; font-size: 15px; display: block; padding: 8px 15px; font-weight: bold; text-decoration: none; color: #000; background-color: #f2f2f2; border: 1px solid #c1c1c1;}
-		#f li button:hover {background-color: #cccccc;}
+		table {table-layout: fixed}
+		#buttons { background: #e6e6e6}
+		input {width: 100%; height: 100%; font-size: 12px}
+		button {width: 100%; height: 100% ; background: transparent; font-size: px; border-width: 2px; border-color: transparent; color: blue}
+		button:hover {border-width: 2px; border-color: #ffffff #e6e6e6 #e6e6e6 #ffffff; border-style: groove ridge ridge groove}
 		body {margin:0; }
 	</style>
 <?php
@@ -25,16 +25,22 @@ foreach($css_files as $file): ?>
     <div>
 		<?php echo $output; ?>
     </div>
-	<!--
+
 	<div id="buttons">
-		<ul id="f">
-		<form action="<?php echo site_url('main/update_card')?>" method="post">
-		<li><button type="submit">Update Card Validity</button></li>
+	<table>
+		<tr>
+		<form action="<?php echo site_url('main/update_valid_card')?>" method="post">
+		<td><div style="float: left; width: 300px"><input type="text" name="enterFilter" placeholder="Enter Card IDs (separated by ',') or 'all'" /></div></td>
+		<td><div style="float: left; width: 150px"><button type="submit" name="submitForm" value="updateValidityOnCard">Update Card Validity</button></div></td>
 		</form>
+		</tr>
+		<tr>
 		<form action="<?php echo site_url('main/update_authorisations')?>" method="post">
-		<li><button type="submit">Update Authorisations</button></li>
+		<td><div style="float: left; width: 300px"><input type="text" name="enterFilter" placeholder="Enter Card IDs (separated by ',') or 'all'" /></div></td>
+		<td><div style="float: left; width: 150px"><button type="submit" name="submitForm" value="updateAuthOnCard">Update Authorisations</button></div></td>
 		</form>
-		</ul>
+		</tr>
+	</table>
 	</div>
 
 <script>
@@ -51,7 +57,6 @@ if (/edit/.test(window.location.href))
 	document.getElementById('buttons').style.display = 'none'
 }
 </script>
-	-->
 
 </body>
 </html>

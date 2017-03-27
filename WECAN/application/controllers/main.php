@@ -17,57 +17,532 @@ class Main extends CI_Controller {
 		$this->load->view('home');
 	}
 
-	public function update_all()
+	public function update_new_card()
 	{
-		$this->update_card();
-		$this->update_authorisations();
-	}
-
-	public function update_card()
-	{
-		$query = $this->db->query("SELECT * FROM card WHERE cardValid = TRUE");
-		foreach ($query->result() as $row)
+		$counter = 0;
+		$pressed = $this->input->post("submitForm");
+		$filter =  $this->input->post('enterFilter');
+		// If comma separated, make sure each item is a number
+		$ok = true;
+		if(strpos($filter, ",") <> false)
 		{
-			$maxissue = $this->db->query("SELECT MAX(issueNo) AS maximum FROM card WHERE Competitor_competitorID = ".$row->Competitor_competitorID);
-			foreach ($maxissue->result() as $issuerow)
+			$checkarr = explode(",",$filter);
+			foreach($checkarr as $item)
 			{
-				$maxvalue = $issuerow->maximum;
-			}
-			if ($row->issueNo < $maxvalue)
-			{
-				$this->db->query("UPDATE card SET cardValid = FALSE WHERE cardID = ".$row->cardID);
+				if (ctype_digit($item) == false)
+				{
+					$ok = false;
+				}
 			}
 		}
+		// Otherwise make sure the filter is a single number
+		else if (ctype_digit($filter) == false)
+		{
+			$ok = false;
+		}
+		// If filter is blank
+		if ($filter == "")
+		{
+			echo ("<SCRIPT LANGUAGE='JavaScript'>
+                            window.alert('Please enter a filter')
+                            window.location.href=document.referrer
+                            </SCRIPT>");
+			exit();
+		}
+		// If filter contains "all"
+		else if ($filter == "all")
+		{
+			// Add card for any competitor that doesnt have one
+			$query = $this->db->query("SELECT * FROM competitor");
+			foreach ($query->result() as $row)
+			{
+				$countcards = $this->db->query("SELECT COUNT(*) AS cardcount FROM card WHERE Competitor_competitorID = ".$row->competitorID);
+				foreach ($countcards->result() as $checkrow)
+				{
+					$cardcount = $checkrow->cardcount;
+				}
+				if ($cardcount == 0)
+				{
+					$counter += 1;
+					$this->db->query("INSERT INTO card (Competitor_competitorID, issueNo, cardIssueDate, cardExpiryDate, cardValid) VALUES (".$row->competitorID.", 1, '2017-06-16', '2017-07-06', 1)");
+				}
+			}
+		}
+		// If number or comma separated numbers
+		else if ($ok == true)
+		{
+			$filterCompetitors = "";
+			$filterTeam = "";
+			// Different filters depending on page
+			if ($pressed == "issueNewCardOnCompetitor")
+			{
+				$filterCompetitors = " WHERE competitorID IN (".$filter.")";
+				$test = $this->db->query("SELECT * FROM competitor".$filterCompetitors)->num_rows();
+				if ($test == 0)
+				{
+					echo ("<SCRIPT LANGUAGE='JavaScript'>
+									window.alert('No competitors found with IDs (".$filter.")')
+									window.location.href=document.referrer
+									</SCRIPT>");
+					exit();
+				}
+			}
+			else if ($pressed == "issueNewCardOnTeam")
+			{
+				$filterTeam = " WHERE Team_teamId IN (".$filter.")";
+				$test = $this->db->query("SELECT * FROM competitor".$filterCompetitors)->num_rows();
+				if ($test == 0)
+				{
+					echo ("<SCRIPT LANGUAGE='JavaScript'>
+									window.alert('No teams found with IDs (".$filter.")')
+									window.location.href=document.referrer
+									</SCRIPT>");
+					exit();
+				}
+			}
+			// Add card for any competitor that doesnt have one based on filters
+			$query = $this->db->query("SELECT * FROM competitor".$filterCompetitors.$filterTeam);
+			foreach ($query->result() as $row)
+			{
+				$countcards = $this->db->query("SELECT COUNT(*) AS cardcount FROM card WHERE Competitor_competitorID = ".$row->competitorID);
+				foreach ($countcards->result() as $checkrow)
+				{
+					$cardcount = $checkrow->cardcount;
+				}
+				if ($cardcount == 0)
+				{
+					$counter += 1;
+					$this->db->query("INSERT INTO card (Competitor_competitorID, issueNo, cardIssueDate, cardExpiryDate, cardValid) VALUES (".$row->competitorID.", 1, '2017-06-16', '2017-07-06', 1)");
+				}
+			}
+		}
+		// If invalid input
+		else
+		{
+			echo ("<SCRIPT LANGUAGE='JavaScript'>
+                            window.alert('Invalid filter')
+                            window.location.href=document.referrer
+                            </SCRIPT>");
+			exit();
+		}
+		echo ("<SCRIPT LANGUAGE='JavaScript'>
+                        window.alert('Updated ".$counter." rows')
+                        window.location.href=document.referrer
+                        </SCRIPT>");
+	}
+
+	public function update_valid_card()
+	{
+		$counter = 0;
+		$pressed = $this->input->post("submitForm");
+		$filter =  $this->input->post('enterFilter');
+		// If comma separated, make sure each item is a number
+		$ok = true;
+		if(strpos($filter, ",") <> false)
+		{
+			$checkarr = explode(",",$filter);
+			foreach($checkarr as $item)
+			{
+				if (ctype_digit($item) == false)
+				{
+					$ok = false;
+				}
+			}
+		}
+		// Otherwise make sure the filter is a single number
+		else if (ctype_digit($filter) == false)
+		{
+			$ok = false;
+		}
+		// If filter is blank
+		if ($filter == "")
+		{
+			echo ("<SCRIPT LANGUAGE='JavaScript'>
+                            window.alert('Please enter a filter')
+                            window.location.href=document.referrer
+                            </SCRIPT>");
+			exit();
+		}
+		// If filter contains "all"
+		else if ($filter == "all")
+		{
+			// Set old cards to invalid for every competitor
+			$query = $this->db->query("SELECT * FROM card WHERE cardValid = TRUE");
+			foreach ($query->result() as $row)
+			{
+				$maxissue = $this->db->query("SELECT MAX(issueNo) AS maximum FROM card WHERE Competitor_competitorID = ".$row->Competitor_competitorID);
+				foreach ($maxissue->result() as $issuerow)
+				{
+					$maxvalue = $issuerow->maximum;
+				}
+				if ($row->issueNo < $maxvalue)
+				{
+					$counter += 1;
+					$this->db->query("UPDATE card SET cardValid = FALSE WHERE cardID = ".$row->cardID);
+				}
+			}
+		}
+		// If number or comma separated numbers
+		else if ($ok == true)
+		{
+			$filterCompetitors = "";
+			$filterCard = "";
+			// Different filters depending on page
+			if ($pressed == "updateValidityOnCard")
+			{
+				$filterCard = " WHERE cardID IN (".$filter.")";
+				$test = $this->db->query("SELECT * FROM competitor".$filterCard)->num_rows();
+				if ($test == 0)
+				{
+					echo ("<SCRIPT LANGUAGE='JavaScript'>
+									window.alert('No cards found with IDs (".$filter.")')
+									window.location.href=document.referrer
+									</SCRIPT>");
+					exit();
+				}
+				$filterCard = " AND cardID IN (".$filter.")";
+			}
+			else if ($pressed == "updateValidityOnCompetitor")
+			{
+				$filterCompetitors = " WHERE Competitor_competitorID IN (".$filter.")";
+				$test = $this->db->query("SELECT * FROM competitor".$filterCard)->num_rows();
+				if ($test == 0)
+				{
+					echo ("<SCRIPT LANGUAGE='JavaScript'>
+									window.alert('No competitors found with IDs (".$filter.")')
+									window.location.href=document.referrer
+									</SCRIPT>");
+					exit();
+				}
+				$filterCompetitors = " AND Competitor_competitorID IN (".$filter.")";
+			}
+			else if ($pressed == "updateValidityOnTeam")
+			{
+				// First get list of competitors in team
+				$test = $this->db->query("SELECT teamID FROM team WHERE teamID IN (".$filter.")")->num_rows();
+				if ($test == 0)
+				{
+					echo ("<SCRIPT LANGUAGE='JavaScript'>
+									window.alert('No teams found with IDs (".$filter.")')
+									window.location.href=document.referrer
+									</SCRIPT>");
+					exit();
+				}
+				$query = $this->db->query("SELECT competitorID FROM competitor WHERE Team_teamID IN (".$filter.")");
+				if ($query->num_rows() == 0)
+				{
+					echo ("<SCRIPT LANGUAGE='JavaScript'>
+									window.alert('No competitors found in team IDs (".$filter.")')
+									window.location.href=document.referrer
+									</SCRIPT>");
+					exit();
+				}
+				$list = "";
+				foreach ($query->result() as $row)
+				{
+					$list = $list.$row->competitorID.", ";
+				}
+				$list = substr($list, 0, -2);
+				$filterCompetitors = " AND Competitor_competitorID IN (".$list.")";
+			}
+			// Set old cards to invalid for every competitor based on filters
+			$query = $this->db->query("SELECT * FROM card WHERE cardValid = TRUE".$filterCard.$filterCompetitors);
+			foreach ($query->result() as $row)
+			{
+				$maxissue = $this->db->query("SELECT MAX(issueNo) AS maximum FROM card WHERE Competitor_competitorID = ".$row->Competitor_competitorID);
+				foreach ($maxissue->result() as $issuerow)
+				{
+					$maxvalue = $issuerow->maximum;
+				}
+				if ($row->issueNo < $maxvalue)
+				{
+					$counter += 1;
+					$this->db->query("UPDATE card SET cardValid = FALSE WHERE cardID = ".$row->cardID);
+				}
+			}
+		}
+		// If invalid input
+		else
+		{
+			echo ("<SCRIPT LANGUAGE='JavaScript'>
+                            window.alert('Invalid filter')
+                            window.location.href=document.referrer
+                            </SCRIPT>");
+			exit();
+		}
+		echo ("<SCRIPT LANGUAGE='JavaScript'>
+                        window.alert('Updated ".$counter." rows')
+                        window.location.href=document.referrer
+                        </SCRIPT>");
 	}
 
 	public function update_authorisations()
 	{
-		$card = $this->db->query("SELECT * FROM card WHERE cardValid = TRUE");
-		foreach ($card->result() as $row)
+		$counter = 0;
+		$pressed = $this->input->post("submitForm");
+		$filter =  $this->input->post('enterFilter');
+		// If comma separated, make sure each item is a number
+		$ok = true;
+		if(strpos($filter, ",") <> false)
 		{
-			$compID = $row->Competitor_competitorID;
-			$team = $this->db->query("SELECT Team_teamID FROM competitor WHERE competitorID = ".$compID." LIMIT 1");
-			foreach ($team->result() as $teamrow)
+			$checkarr = explode(",",$filter);
+			foreach($checkarr as $item)
 			{
-				$teamID = $teamrow->Team_teamID;
-			}
-			$fixtures = $this->db->query("SELECT Fixture_fixtureID FROM team_has_fixture WHERE Team_teamID = ".$teamID);
-			foreach ($fixtures->result() as $fixturerow)
-			{
-				$check = $this->db->query("SELECT * FROM authorisation WHERE Fixture_fixtureID = ".$fixturerow->Fixture_fixtureID." AND Card_cardID = ".$row->cardID);
-				$checkcount = $check->num_rows();
-				if ($checkcount == 0)
+				if (ctype_digit($item) == false)
 				{
-					$this->db->query("INSERT INTO authorisation (Fixture_fixtureID, Card_cardID) VALUES (".$fixturerow->Fixture_fixtureID.",".$row->cardID.")");
+					$ok = false;
 				}
 			}
 		}
+		// Otherwise make sure the filter is a single number
+		else if (ctype_digit($filter) == false)
+		{
+			$ok = false;
+		}
+
+		// If filter is blank
+		if ($filter == "")
+		{
+			echo ("<SCRIPT LANGUAGE='JavaScript'>
+                            window.alert('Please enter a filter')
+                            window.location.href=document.referrer
+                            </SCRIPT>");
+			exit();
+		}
+		// If filter contains "all"
+		else if ($filter == "all")
+		{
+			// Update authorisations for all competitors
+			// Reset authorisations
+			$this->db->query("DELETE FROM authorisation");
+			// Add authorisations based on fixings
+			$card = $this->db->query("SELECT * FROM card WHERE cardValid = TRUE");
+			foreach ($card->result() as $row)
+			{
+				$compID = $row->Competitor_competitorID;
+				$team = $this->db->query("SELECT Team_teamID FROM competitor WHERE competitorID = ".$compID." LIMIT 1");
+				foreach ($team->result() as $teamrow)
+				{
+					$teamID = $teamrow->Team_teamID;
+				}
+				$fixtures = $this->db->query("SELECT Fixture_fixtureID FROM team_has_fixture WHERE Team_teamID = ".$teamID);
+				foreach ($fixtures->result() as $fixturerow)
+				{
+					$check = $this->db->query("SELECT * FROM authorisation WHERE Fixture_fixtureID = ".$fixturerow->Fixture_fixtureID." AND Card_cardID = ".$row->cardID);
+					$checkcount = $check->num_rows();
+					if ($checkcount == 0)
+					{
+						$counter += 1;
+						$this->db->query("INSERT INTO authorisation (Fixture_fixtureID, Card_cardID) VALUES (".$fixturerow->Fixture_fixtureID.",".$row->cardID.")");
+					}
+				}
+			}
+		}
+		// If number or comma separated numbers
+		else if ($ok == true)
+		{
+			$filterCompetitors = "";
+			$filterCardOnCard = "";
+			$filterCardOnAuth = "";
+			if ($pressed == "updateAuthOnCard")
+			{
+				$filterCardOnCard = " AND cardID IN (".$filter.")";
+				$filterCardOnAuth = " WHERE Card_cardID IN (".$filter.")";
+				$test = $this->db->query("SELECT * FROM card WHERE cardID IN (".$filter.")")->num_rows();
+				if ($test == 0)
+				{
+					echo ("<SCRIPT LANGUAGE='JavaScript'>
+									window.alert('No cards found with IDs (".$filter.")')
+									window.location.href=document.referrer
+									</SCRIPT>");
+					exit();
+				}
+			}
+			else if ($pressed == "updateAuthOnCompetitor")
+			{
+				$filterCompetitorsOnCard = " WHERE Competitor_competitorID IN (".$filter.")";
+				$test = $this->db->query("SELECT * FROM competitor".$filterCard)->num_rows();
+				if ($test == 0)
+				{
+					echo ("<SCRIPT LANGUAGE='JavaScript'>
+									window.alert('No competitors found with IDs (".$filter.")')
+									window.location.href=document.referrer
+									</SCRIPT>");
+					exit();
+				}
+				$filterCompetitorsOnCard = " AND Competitor_competitorID IN (".$filter.")";
+				// Get cardIDs for competitor
+				$query = $this->db->query("SELECT cardID FROM card WHERE Competitor_competitorID IN (".$filter.")");
+				if ($query->num_rows() == 0)
+				{
+					echo ("<SCRIPT LANGUAGE='JavaScript'>
+									window.alert('No cards found with competitor IDs (".$filter.")')
+									window.location.href=document.referrer
+									</SCRIPT>");
+					exit();
+				}
+				$list = "";
+				foreach ($query->result() as $row)
+				{
+					$list = $list.$row->cardID.", ";
+				}
+				$list = substr($list, 0, -2);
+				$filterCardOnAuth = " WHERE Card_cardID IN (".$list.")";
+			}
+			else if ($pressed == "updateAuthOnTeam")
+			{
+				$test = $this->db->query("SELECT * FROM team WHERE teamID IN (".$filter.")")->num_rows();
+				if ($test == 0)
+				{
+					echo ("<SCRIPT LANGUAGE='JavaScript'>
+									window.alert('No teams found with IDs (".$filter.")')
+									window.location.href=document.referrer
+									</SCRIPT>");
+					exit();
+				}
+				// Get competitors for team
+				$query = $this->db->query("SELECT competitorID FROM competitors WHERE Team_teamID IN (".$filter.")");
+				if ($query->num_rows() == 0)
+				{
+					echo ("<SCRIPT LANGUAGE='JavaScript'>
+									window.alert('No competitors found with team IDs (".$filter.")')
+									window.location.href=document.referrer
+									</SCRIPT>");
+					exit();
+				}
+				$list = "";
+				foreach ($query->result() as $row)
+				{
+					$list = $list.$row->competitorID.", ";
+				}
+				$list = substr($list, 0, -2);
+				$filterCompetitorsOnCard = " AND Competitor_competitorID IN (".$list.")";
+				// Get cards for competitors
+				$query = $this->db->query("SELECT cardID FROM card WHERE Competitor_competitorID IN (".$list.")");
+				if ($query->num_rows() == 0)
+				{
+					echo ("<SCRIPT LANGUAGE='JavaScript'>
+									window.alert('No cards found with team IDs (".$filter.")')
+									window.location.href=document.referrer
+									</SCRIPT>");
+					exit();
+				}
+				$list = "";
+				foreach ($query->result() as $row)
+				{
+					$list = $list.$row->cardID.", ";
+				}
+				$list = substr($list, 0, -2);
+				$filterCardOnCard = " AND cardID IN (".$list.")";
+				$filterCardOnAuth = " WHERE Card_cardID IN (".$list.")";
+			}
+			else if ($pressed == "updateAuthOnFixture")
+			{
+				$test = $this->db->query("SELECT * FROM fixture WHERE fixtureID IN (".$filter.")")->num_rows();
+				if ($test == 0)
+				{
+					echo ("<SCRIPT LANGUAGE='JavaScript'>
+									window.alert('No fixtures found with IDs (".$filter.")')
+									window.location.href=document.referrer
+									</SCRIPT>");
+					exit();
+				}
+				// Get teams in fixtures
+				$query = $this->db->query("SELECT Team_teamID FROM team_has_fixture WHERE Fixture_fixtureID IN (".$filter.")");
+				if ($query->num_rows() == 0)
+				{
+					echo ("<SCRIPT LANGUAGE='JavaScript'>
+									window.alert('No teams found with fixture IDs (".$filter.")')
+									window.location.href=document.referrer
+									</SCRIPT>");
+					exit();
+				}
+				$list = "";
+				foreach ($query->result() as $row)
+				{
+					$list = $list.$row->competitorID.", ";
+				}
+				$list = substr($list, 0, -2);
+				// Get competitors in teams
+				$query = $this->db->query("SELECT competitorID FROM competitors WHERE Team_teamID IN (".$list.")");
+				if ($query->num_rows() == 0)
+				{
+					echo ("<SCRIPT LANGUAGE='JavaScript'>
+									window.alert('No competitors found with fixture IDs (".$filter.")')
+									window.location.href=document.referrer
+									</SCRIPT>");
+					exit();
+				}
+				$list = "";
+				foreach ($query->result() as $row)
+				{
+					$list = $list.$row->competitorID.", ";
+				}
+				$list = substr($list, 0, -2);
+				$filterCompetitorsOnCard = " AND Competitor_competitorID IN (".$list.")";
+				// Get cards for competitors
+				$query = $this->db->query("SELECT cardID FROM card WHERE Competitor_competitorID IN (".$list.")");
+				if ($query->num_rows() == 0)
+				{
+					echo ("<SCRIPT LANGUAGE='JavaScript'>
+									window.alert('No cards found with fixture IDs (".$filter.")')
+									window.location.href=document.referrer
+									</SCRIPT>");
+					exit();
+				}
+				$list = "";
+				foreach ($query->result() as $row)
+				{
+					$list = $list.$row->cardID.", ";
+				}
+				$list = substr($list, 0, -2);
+				$filterCardOnCard = " AND cardID IN (".$list.")";
+				$filterCardOnAuth = " WHERE Card_cardID IN (".$list.")";
+			}
+			// Update authorisations for all competitors based on filters
+			// Reset authorisations based on filters
+			$this->db->query("DELETE FROM authorisation".$filterCardOnAuth);
+			// Add authorisations based on fixings and filters
+			$card = $this->db->query("SELECT * FROM card WHERE cardValid = TRUE".$filterCardOnCard.$filterCompetitorsOnCard);
+			foreach ($card->result() as $row)
+			{
+				$compID = $row->Competitor_competitorID;
+				$team = $this->db->query("SELECT Team_teamID FROM competitor WHERE competitorID = ".$compID." LIMIT 1");
+				foreach ($team->result() as $teamrow)
+				{
+					$teamID = $teamrow->Team_teamID;
+				}
+				$fixtures = $this->db->query("SELECT Fixture_fixtureID FROM team_has_fixture WHERE Team_teamID = ".$teamID);
+				foreach ($fixtures->result() as $fixturerow)
+				{
+					$check = $this->db->query("SELECT * FROM authorisation WHERE Fixture_fixtureID = ".$fixturerow->Fixture_fixtureID." AND Card_cardID = ".$row->cardID);
+					$checkcount = $check->num_rows();
+					if ($checkcount == 0)
+					{
+						$counter += 1;
+						$this->db->query("INSERT INTO authorisation (Fixture_fixtureID, Card_cardID) VALUES (".$fixturerow->Fixture_fixtureID.",".$row->cardID.")");
+					}
+				}
+			}
+		}
+		// If invalid input
+		else
+		{
+			echo ("<SCRIPT LANGUAGE='JavaScript'>
+                            window.alert('Invalid filter')
+                            window.location.href=document.referrer
+                            </SCRIPT>");
+			exit();
+		}
+		echo ("<SCRIPT LANGUAGE='JavaScript'>
+                        window.alert('Updated ".$counter." rows')
+                        window.location.href=document.referrer
+                        </SCRIPT>");
 	}
 
 	public function competitor()
 	{
 		$this->load->view('header');
-		$this->update_all();
 		$crud = new grocery_CRUD();
 		$crud->set_theme('flexigrid');
 		$crud->set_table('competitor');
@@ -99,7 +574,6 @@ class Main extends CI_Controller {
 	public function card()
 	{
 		$this->load->view('header');
-		$this->update_all();
 		$crud = new grocery_CRUD();
 		$crud->set_theme('flexigrid');
 		// Create temporary table using SQL
@@ -131,7 +605,6 @@ class Main extends CI_Controller {
 		public function venue()
 	{
 		$this->load->view('header');
-		$this->update_all();
 		$crud = new grocery_CRUD();
 		$crud->set_theme('flexigrid');
 		$crud->set_table('venue');
@@ -155,7 +628,6 @@ class Main extends CI_Controller {
 	public function fixture()
 	{
 		$this->load->view('header');
-		$this->update_all();
 		$crud = new grocery_CRUD();
 		$crud->set_theme('flexigrid');
 		$crud->set_table('fixture');
@@ -182,7 +654,6 @@ class Main extends CI_Controller {
 	public function nfa()
 	{
 		$this->load->view('header');
-		$this->update_all();
 		$crud = new grocery_CRUD();
 		$crud->set_theme('flexigrid');
 		$crud->set_table('nfa');
@@ -207,7 +678,6 @@ class Main extends CI_Controller {
 	public function card_access_log()
 	{
 		$this->load->view('header');
-		$this->update_all();
 		$crud = new grocery_CRUD();
 		$crud->set_theme('flexigrid');
 		$crud->set_table('card_access_log');
@@ -238,7 +708,6 @@ class Main extends CI_Controller {
 	public function issue_log()
 	{
 		$this->load->view('header');
-		$this->update_all();
 		$crud = new grocery_CRUD();
 		$crud->set_theme('flexigrid');
 		$crud->set_table('issue_log');
@@ -267,7 +736,6 @@ class Main extends CI_Controller {
 	public function team()
 	{
 		$this->load->view('header');
-		$this->update_all();
 		$crud = new grocery_CRUD();
 		$crud->set_theme('flexigrid');
 		$crud->set_table('team');

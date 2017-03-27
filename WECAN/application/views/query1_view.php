@@ -6,7 +6,8 @@
 		h1, h2 { text-align: center; font-family: Calibri; }
 		table.mytable {border-collapse: collapse;}
 		table.mytable td, th {border: 1px solid grey; padding: 5px 15px 2px 7px;}
-		th {background-color: #f2e4d5;}		
+		th {background-color: #f2e4d5;}	
+		body {margin:0; }	
 	</style>
 </head>
 <body>
