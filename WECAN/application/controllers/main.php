@@ -1,5 +1,5 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
-
+session_start();
 class Main extends CI_Controller {
 
 	 function __construct()
@@ -13,8 +13,17 @@ class Main extends CI_Controller {
 
 	public function index()
 	{
-		$this->load->view('header');
-		$this->load->view('home');
+		if ($this->session->userdata('logged_in'))
+		{
+			$sessiondata = $this->session->userdata('logged_in');
+
+			$this->load->view('header', $sessiondata);
+			$this->load->view('home');
+		}
+		else
+		{
+			redirect('login', 'refresh');
+		}
 	}
 
 	public function clear_temp_tables()
@@ -27,28 +36,44 @@ class Main extends CI_Controller {
 
 	public function competitor()
 	{
-		$this->load->view('header');
-		$crud = new grocery_CRUD();
-		$crud->set_theme('datatables');
-		$crud->set_table('competitor');
-		$crud->set_subject('Competitor');
-		$crud->columns('competitorID', 'Title_titleID', 'competitorFirstName', 'competitorLastName', 'competitorDOB', 'competitorPhoto', 'Team_teamID', 'Role_roleID');
-		$crud->fields('Title_titleID', 'competitorFirstName', 'competitorLastName', 'competitorDOB', 'competitorPhoto', 'Team_teamID', 'Role_roleID');
-		$crud->required_fields('competitorID', 'competitorFirstName', 'competitorLastName', 'Team_teamID', 'Role_roleID', 'Title_titleID');
-		$crud->set_relation('Team_teamID','team','teamName');
-		$crud->set_relation('Role_roleID','role','roleDescription');
-		$crud->set_relation('Title_titleID','title','titleText');
-		$crud->display_as('competitorID', 'Competitor ID');
-		$crud->display_as('competitorFirstName', 'First Name');
-		$crud->display_as('competitorLastName', 'Last Name');
-		$crud->display_as('competitorDOB', 'Date of Birth');
-		$crud->display_as('competitorPhoto', 'Photo');
-		$crud->display_as('Team_teamID', 'Team');
-		$crud->display_as('Role_roleID', 'Role');
-		$crud->display_as('Title_titleID', 'Title');
+		if ($this->session->userdata('logged_in'))
+		{
+			$sessiondata = $this->session->userdata('logged_in');
+			if ($sessiondata['level'] <> 2)
+			{
+				$this->load->view('header', $sessiondata);
+				$crud = new grocery_CRUD();
+				$crud->set_theme('datatables');
+				$crud->set_table('competitor');
+				$crud->set_subject('Competitor');
+				$crud->columns('competitorID', 'Title_titleID', 'competitorFirstName', 'competitorLastName', 'competitorDOB', 'competitorPhoto', 'Team_teamID', 'Role_roleID');
+		    $crud->fields('Title_titleID', 'competitorFirstName', 'competitorLastName', 'competitorDOB', 'competitorPhoto', 'Team_teamID', 'Role_roleID');
+				$crud->required_fields('competitorID', 'competitorFirstName', 'competitorLastName', 'competitorDOB', 'competitorPhoto', 'Team_teamID', 'Role_roleID', 'Title_titleID');
+				$crud->set_relation('Team_teamID','team','teamName');
+				$crud->set_relation('Role_roleID','role','roleDescription');
+				$crud->set_relation('Title_titleID','title','titleText');
+				$crud->display_as('competitorID', 'Competitor ID');
+				$crud->display_as('competitorFirstName', 'First Name');
+				$crud->display_as('competitorLastName', 'Last Name');
+				$crud->display_as('competitorDOB', 'Date of Birth');
+				$crud->display_as('competitorPhoto', 'Photo');
+				$crud->display_as('Team_teamID', 'Team');
+				$crud->display_as('Role_roleID', 'Role');
+				$crud->display_as('Title_titleID', 'Title');
 
-		$output = $crud->render();
-		$this->competitor_output($output);
+				$output = $crud->render();
+				$this->competitor_output($output);
+			}
+			else
+			{
+				$this->load->view('header', $sessiondata);
+				$this->load->view('home', $sessiondata);
+			}
+		}
+		else
+		{
+			redirect('login', 'refresh');
+		}
 	}
 
 	function competitor_output($output = null)
@@ -58,28 +83,46 @@ class Main extends CI_Controller {
 
 	public function card()
 	{
-		$this->load->view('header');
-		$crud = new grocery_CRUD();
-		$crud->set_theme('datatables');
-		// Create temporary table using SQL
-		$this->clear_temp_tables();
-		$this->db->query("CREATE TABLE temp_fixture_venue (PRIMARY KEY (fixtureID)) SELECT fixture.fixtureID, fixture.fixtureDate,  venue.venueName,  venue.venueStadium FROM venue JOIN fixture ON venue.venueID = fixture.Venue_venueID");
-		$crud->set_table('card');
-		$crud->set_subject('Card');
-		$crud->columns('cardID', 'Competitor_competitorID', 'issueNo', 'cardIssueDate', 'cardExpiryDate', 'cardValid','auth');
-		$crud->fields('Competitor_competitorID', 'cardIssueDate', 'cardExpiryDate', 'cardValid','auth');
-		$crud->set_relation_n_n('auth', 'authorisation', 'temp_fixture_venue', 'Card_cardID', 'Fixture_fixtureID', '{fixtureDate}, {venueName}, {venueStadium}');
-		$crud->required_fields('cardID', 'issueNo', 'Competitor_competitorID', 'cardIssueDate', 'cardExpiryDate', 'cardValid');
-		$crud->set_relation('Competitor_competitorID','competitor','{competitorLastName}, {competitorFirstName}');
-		$crud->display_as('cardID','Card ID');
-		$crud->display_as('issueNo', 'Issue No.');
-		$crud->display_as('Competitor_competitorID', 'Competitor');
-		$crud->display_as('cardIssueDate', 'Issue Date');
-		$crud->display_as('cardExpiryDate', 'Expiry Date');
-		$crud->display_as('cardValid', 'Valid');
-		$crud->display_as('auth', 'Fixtures');
-		$output = $crud->render();
-		$this->card_output($output);
+		if ($this->session->userdata('logged_in'))
+		{
+			$sessiondata = $this->session->userdata('logged_in');
+			if ($sessiondata['level'] <> 2)
+			{
+				$sessiondata = $this->session->userdata('logged_in');
+        $this->load->view('header');
+        $crud = new grocery_CRUD();
+        $crud->set_theme('datatables');
+        // Create temporary table using SQL
+        $this->clear_temp_tables();
+        $this->db->query("CREATE TABLE temp_fixture_venue (PRIMARY KEY (fixtureID)) SELECT fixture.fixtureID, fixture.fixtureDate,  venue.venueName,  venue.venueStadium FROM venue JOIN fixture ON venue.venueID = fixture.Venue_venueID");
+        $crud->set_table('card');
+        $crud->set_subject('Card');
+        $crud->columns('cardID', 'Competitor_competitorID', 'issueNo', 'cardIssueDate', 'cardExpiryDate', 'cardValid','auth');
+        $crud->fields('Competitor_competitorID', 'cardIssueDate', 'cardExpiryDate', 'cardValid','auth');
+        $crud->set_relation_n_n('auth', 'authorisation', 'temp_fixture_venue', 'Card_cardID', 'Fixture_fixtureID', '{fixtureDate}, {venueName}, {venueStadium}');
+        $crud->required_fields('cardID', 'issueNo', 'Competitor_competitorID', 'cardIssueDate', 'cardExpiryDate', 'cardValid');
+        $crud->set_relation('Competitor_competitorID','competitor','{competitorLastName}, {competitorFirstName}');
+        $crud->display_as('cardID','Card ID');
+        $crud->display_as('issueNo', 'Issue No.');
+        $crud->display_as('Competitor_competitorID', 'Competitor');
+        $crud->display_as('cardIssueDate', 'Issue Date');
+        $crud->display_as('cardExpiryDate', 'Expiry Date');
+        $crud->display_as('cardValid', 'Valid');
+        $crud->display_as('auth', 'Fixtures');
+        
+        $output = $crud->render();
+        $this->card_output($output);
+			}
+			else
+			{
+				$this->load->view('header', $sessiondata);
+				$this->load->view('home', $sessiondata);
+			}
+		}
+		else
+		{
+			redirect('login', 'refresh');
+		}
 	}
 
 	function card_output($output = null)
@@ -89,20 +132,37 @@ class Main extends CI_Controller {
 
 		public function venue()
 	{
-		$this->load->view('header');
-		$crud = new grocery_CRUD();
-		$crud->set_theme('datatables');
-		$crud->set_table('venue');
-		$crud->set_subject('Venue');
-		$crud->columns('venueID','venueName', 'venueStadium');
-		$crud->fields('venueName', 'venueStadium');
-		$crud->required_fields('venueID', 'venueName', 'venueStadium');
-		$crud->display_as('venueID', 'Venue ID');
-		$crud->display_as('venueName', 'Venue Name');
-		$crud->display_as('venueStadium', 'Stadium');
+		if ($this->session->userdata('logged_in'))
+		{
+			$sessiondata = $this->session->userdata('logged_in');
+			if ($sessiondata['level'] <> 3)
+			{
+				$sessiondata = $this->session->userdata('logged_in');
+				$this->load->view('header', $sessiondata);
+				$crud = new grocery_CRUD();
+				$crud->set_theme('datatables');
+				$crud->set_table('venue');
+				$crud->set_subject('Venue');
+				$crud->columns('venueID','venueName', 'venueStadium');
+				$crud->fields('venueName', 'venueStadium');
+				$crud->required_fields('venueID', 'venueName', 'venueStadium');
+				$crud->display_as('venueID', 'Venue ID');
+				$crud->display_as('venueName', 'Venue Name');
+				$crud->display_as('venueStadium', 'Stadium');
 
-		$output = $crud->render();
-		$this->venue_output($output);
+				$output = $crud->render();
+				$this->venue_output($output);
+			}
+			else
+			{
+				$this->load->view('header', $sessiondata);
+				$this->load->view('home', $sessiondata);
+			}
+		}
+		else
+		{
+			redirect('login', 'refresh');
+		}
 	}
 
 	function venue_output($output = null)
@@ -112,23 +172,40 @@ class Main extends CI_Controller {
 
 	public function fixture()
 	{
-		$this->load->view('header');
-		$crud = new grocery_CRUD();
-		$crud->set_theme('datatables');
-		$crud->set_table('fixture');
-		$crud->set_subject('Fixture');
-		$crud->columns('fixtureID', 'fixtureDate', 'Venue_venueID','teams');
-		$crud->fields('fixtureID', 'fixtureDate', 'Venue_venueID','teams');
-		$crud->set_relation('Venue_venueID','venue','{venueName}, {venueStadium}');
-		$crud->set_relation_n_n('teams', 'team_has_fixture', 'team', 'Fixture_fixtureID', 'Team_teamID', 'teamName');
-		$crud->required_fields('fixtureID', 'fixtureDate', 'Venue_venueID');
-		$crud->display_as('fixtureID', 'Fixture ID');
-		$crud->display_as('fixtureDate', 'Fixture Date');
-		$crud->display_as('Venue_venueID', 'Venue Name, Stadium');
-		$crud->display_as('teams', 'Teams');
+		if ($this->session->userdata('logged_in'))
+		{
+			$sessiondata = $this->session->userdata('logged_in');
+			if ($sessiondata['level'] <> 3)
+			{
+				$sessiondata = $this->session->userdata('logged_in');
+				$this->load->view('header', $sessiondata);
+				$crud = new grocery_CRUD();
+				$crud->set_theme('datatables');
+				$crud->set_table('fixture');
+				$crud->set_subject('Fixture');
+				$crud->columns('fixtureID', 'fixtureDate', 'Venue_venueID','teams');
+				$crud->fields('fixtureID', 'fixtureDate', 'Venue_venueID','teams');
+				$crud->set_relation('Venue_venueID','venue','{venueName}, {venueStadium}');
+				$crud->set_relation_n_n('teams', 'team_has_fixture', 'team', 'Fixture_fixtureID', 'Team_teamID', 'teamName');
+				$crud->required_fields('fixtureID', 'fixtureDate', 'Venue_venueID');
+				$crud->display_as('fixtureID', 'Fixture ID');
+				$crud->display_as('fixtureDate', 'Fixture Date');
+				$crud->display_as('Venue_venueID', 'Venue Name, Stadium');
+				$crud->display_as('teams', 'Teams');
 
-		$output = $crud->render();
-		$this->fixture_output($output);
+				$output = $crud->render();
+				$this->fixture_output($output);
+			}
+			else
+			{
+				$this->load->view('header', $sessiondata);
+				$this->load->view('home', $sessiondata);
+			}
+		}
+		else
+		{
+			redirect('login', 'refresh');
+		}
 	}
 
 	function fixture_output($output = null)
@@ -138,21 +215,38 @@ class Main extends CI_Controller {
 
 	public function nfa()
 	{
-		$this->load->view('header');
-		$crud = new grocery_CRUD();
-		$crud->set_theme('datatables');
-		$crud->set_table('nfa');
-		$crud->set_subject('NFA');
-		$crud->columns('nfaID', 'nfaName', 'nfaAcronym');
-		$crud->fields('nfaName', 'nfaAcronym');
-		$crud->required_fields('nfaID', 'nfaName', 'nfaAcronym');
-		$crud->display_as('nfaID', 'NFA ID');
-		$crud->display_as('nfaName', 'NFA Name');
-		$crud->display_as('nfaAcronym', 'NFA Acronym');
+		if ($this->session->userdata('logged_in'))
+		{
+			$sessiondata = $this->session->userdata('logged_in');
+			if ($sessiondata['level'] <> 3)
+			{
+				$sessiondata = $this->session->userdata('logged_in');
+				$this->load->view('header', $sessiondata);
+				$crud = new grocery_CRUD();
+				$crud->set_theme('datatables');
+				$crud->set_table('nfa');
+				$crud->set_subject('NFA');
+				$crud->columns('nfaID', 'nfaName', 'nfaAcronym');
+				$crud->fields('nfaName', 'nfaAcronym');
+				$crud->required_fields('nfaID', 'nfaName', 'nfaAcronym');
+				$crud->display_as('nfaID', 'NFA ID');
+				$crud->display_as('nfaName', 'NFA Name');
+				$crud->display_as('nfaAcronym', 'NFA Acronym');
 
 
-		$output = $crud->render();
-		$this->nfa_output($output);
+				$output = $crud->render();
+				$this->nfa_output($output);
+			}
+			else
+			{
+				$this->load->view('header', $sessiondata);
+				$this->load->view('home', $sessiondata);
+			}
+		}
+		else
+		{
+			redirect('login', 'refresh');
+		}
 	}
 
 	function nfa_output($output = null)
@@ -162,27 +256,44 @@ class Main extends CI_Controller {
 
 	public function card_access_log()
 	{
-		$this->load->view('header');
-		$crud = new grocery_CRUD();
-		$crud->set_theme('datatables');
-		$crud->set_table('card_access_log');
-		$crud->set_subject('Access Log');
-		$crud->columns('accessID', 'accessDate', 'accessAuthorised', 'Venue_venueID', 'Card_issueNo', 'Card_Competitor_competitorID');
-		$crud->fields('accessDate', 'accessAuthorised', 'Venue_venueID', 'Card_issueNo', 'Card_Competitor_competitorID');
-		$crud->set_relation('Venue_venueID','venue','{venueName}, {venueStadium}');
-		// Compound primary key Competitor_competitorID and issueNo
-		//$crud->set_relation('Card_isueNo','card','{Competitor_competitorID}, {issueNo}');
-		//$crud->set_relation('Card_Competitor_competitorID','competitor','{competitorLastName}, {competitorFirstName}');
-		$crud->required_fields('accessID', 'accessDate', 'accessAuthorised', 'Venue_venueID', 'Card_issueNo', 'Card_Competitor_competitorID');
-		$crud->display_as('accessID', 'Access ID');
-		$crud->display_as('accessDate', 'Access Date');
-		$crud->display_as('accessAuthorised', 'Authorised Access');
-		$crud->display_as('Card_issueNo', 'Card Issue No.');
-		$crud->display_as('Card_Competitor_competitorID', 'Competitor');
-		$crud->display_as('Venue_venueID', 'Venue Name, Stadium');
+		if ($this->session->userdata('logged_in'))
+		{
+			$sessiondata = $this->session->userdata('logged_in');
+			if ($sessiondata['level'] <> 3)
+			{
+				$sessiondata = $this->session->userdata('logged_in');
+				$this->load->view('header', $sessiondata);
+				$crud = new grocery_CRUD();
+				$crud->set_theme('datatables');
+				$crud->set_table('card_access_log');
+				$crud->set_subject('Access Log');
+				$crud->columns('accessID', 'accessDate', 'accessAuthorised', 'Venue_venueID', 'Card_issueNo', 'Card_Competitor_competitorID');
+				$crud->fields('accessDate', 'accessAuthorised', 'Venue_venueID', 'Card_issueNo', 'Card_Competitor_competitorID');
+				$crud->set_relation('Venue_venueID','venue','{venueName}, {venueStadium}');
+				// Compound primary key Competitor_competitorID and issueNo
+				//$crud->set_relation('Card_isueNo','card','{Competitor_competitorID}, {issueNo}');
+				//$crud->set_relation('Card_Competitor_competitorID','competitor','{competitorLastName}, {competitorFirstName}');
+				$crud->required_fields('accessID', 'accessDate', 'accessAuthorised', 'Venue_venueID', 'Card_issueNo', 'Card_Competitor_competitorID');
+				$crud->display_as('accessID', 'Access ID');
+				$crud->display_as('accessDate', 'Access Date');
+				$crud->display_as('accessAuthorised', 'Authorised Access');
+				$crud->display_as('Card_issueNo', 'Card Issue No.');
+				$crud->display_as('Card_Competitor_competitorID', 'Competitor');
+				$crud->display_as('Venue_venueID', 'Venue Name, Stadium');
 
-		$output = $crud->render();
-		$this->card_access_log_output($output);
+				$output = $crud->render();
+				$this->card_access_log_output($output);
+			}
+			else
+			{
+				$this->load->view('header', $sessiondata);
+				$this->load->view('home', $sessiondata);
+			}
+		}
+		else
+		{
+			redirect('login', 'refresh');
+		}
 	}
 
 	function card_access_log_output($output = null)
@@ -192,7 +303,8 @@ class Main extends CI_Controller {
 
 	public function issue_log()
 	{
-		$this->load->view('header');
+		$sessiondata = $this->session->userdata('logged_in');
+		$this->load->view('header', $sessiondata);
 		$crud = new grocery_CRUD();
 		$crud->set_theme('datatables');
 		$crud->set_table('issue_log');
@@ -220,7 +332,8 @@ class Main extends CI_Controller {
 
 	public function team()
 	{
-		$this->load->view('header');
+		$sessiondata = $this->session->userdata('logged_in');
+		$this->load->view('header', $sessiondata);
 		$crud = new grocery_CRUD();
 		$crud->set_theme('datatables');
 		$crud->set_table('team');
@@ -248,14 +361,16 @@ class Main extends CI_Controller {
 
 	public function querynav()
 	{
-		$this->load->view('header');
+		$sessiondata = $this->session->userdata('logged_in');
+		$this->load->view('header', $sessiondata);
 		$this->load->view('querynav_view');
 	}
 
 	public function query1()
 	{
+		$sessiondata = $this->session->userdata('logged_in');
 		$cardSelected = $this->input->post('cardSelected');
-		$this->load->view('header');
+		$this->load->view('header', $sessiondata);
 		$this->load->view('query1_view');
 		
 		
@@ -263,19 +378,22 @@ class Main extends CI_Controller {
 
 	public function query2()
 	{
-		$this->load->view('header');
+    $sessiondata = $this->session->userdata('logged_in');
+		$this->load->view('header', $sessiondata);
 		$this->load->view('query_compList_view');
 	}
     
         public function query3()
 	{
-		$this->load->view('header');
+    $sessiondata = $this->session->userdata('logged_in');
+		$this->load->view('header', $sessiondata);
 		$this->load->view('query3_view');
 	}
     
     public function query4()
 	{
-		$this->load->view('header');
+    $sessiondata = $this->session->userdata('logged_in');
+		$this->load->view('header', $sessiondata);
 		$this->load->view('query4_view');
 	}
 	
@@ -407,19 +525,22 @@ class Main extends CI_Controller {
     }
 	public function query_entryAttempts()
 	{
-		$this->load->view('header');
+    $sessiondata = $this->session->userdata('logged_in');
+		$this->load->view('header', $sessiondata);
 		$this->load->view('query_entryAttempts_view');
 	}
 	
 	public function query_entryLog()
 	{
-		$this->load->view('header');
+    $sessiondata = $this->session->userdata('logged_in');
+		$this->load->view('header', $sessiondata);
 		$this->load->view('query_entryLog_view');
 	}
     
     public function query7()
 	{
-		$this->load->view('header');
+    $sessiondata = $this->session->userdata('logged_in');
+		$this->load->view('header', $sessiondata);
 		$this->load->view('query7_view');
 	}
     
@@ -427,8 +548,22 @@ class Main extends CI_Controller {
 
 	public function blank()
 	{
-		$this->load->view('header');
+		$sessiondata = $this->session->userdata('logged_in');
+		$this->load->view('header', $sessiondata);
 		$this->load->view('blank_view');
+	}
+	public function logout()
+	{
+		$this->session->unset_userdata('logged_in');
+		session_destroy();
+		$this->load->view('login_view.php');
+	}
+
+	public function home()
+	{
+		$sessiondata = $this->session->userdata('logged_in');
+		$this->load->view('header', $sessiondata);
+		$this->load->view('home');
 	}
 
 }

@@ -16,21 +16,26 @@
 <body>
 	<div>
 		<ul id="nav">
-		<li><a href='<?php echo site_url('')?>'>Home</a></li>
-		<li><a href='<?php echo site_url('main/competitor')?>'>Competitors</a></li>
-		<li><a href='<?php echo site_url('main/card')?>'>Cards</a></li>
-		<li><a href='<?php echo site_url('main/venue')?>'>Venues</a></li>
-		<li><a href='<?php echo site_url('main/fixture')?>'>Fixtures</a></li>
-		<li><a href='<?php echo site_url('main/nfa')?>'>NFAs</a></li>
-		<li><a href='<?php echo site_url('main/card_access_log')?>'>Card Access Logs</a></li>
-		<li><a href='<?php echo site_url('main/issue_log')?>'>Issue Logs</a></li>
-		<li><a href='<?php echo site_url('main/team')?>'>Teams</a></li>
+		<li><a id='home' href='<?php echo site_url('main/home')?>'>Home</a></li>
+		<?php if ($level <> "2") { ?>
+		<li><a id='competitor' href='<?php echo site_url('main/competitor')?>'>Competitors</a></li>
+		<li><a id='card' href='<?php echo site_url('main/card')?>'>Cards</a></li>
+		<?php } ?>
+		<?php if ($level <> "3") { ?>
+		<li><a id='venue' href='<?php echo site_url('main/venue')?>'>Venues</a></li>
+		<li><a id='fixture' href='<?php echo site_url('main/fixture')?>'>Fixtures</a></li>
+		<li><a id='nfa' href='<?php echo site_url('main/nfa')?>'>NFAs</a></li>
+		<li><a id='card_access_log' href='<?php echo site_url('main/card_access_log')?>'>Card Access Logs</a></li>
+		<?php } ?>
+		<li><a id='issue_log' href='<?php echo site_url('main/issue_log')?>'>Issue Logs</a></li>
+		<li><a id='team' href='<?php echo site_url('main/team')?>'>Teams</a></li>
 			<ul id="rightnav">
-			<li><a href='<?php echo site_url('main/blank')?>'>Logout</a></li>
-			<li><a href='<?php echo site_url('main/blank')?>'>Account</a></li>
+			<li><a id='logout' href='<?php echo site_url('main/logout')?>'>Logout</a></li>
+			<li><a id='account' href='<?php echo site_url('')?>'>Account</a></li>
 			<li><a href='<?php echo site_url('main/querynav')?>'>QueryTest</a></li>
 			</ul>
 		</ul>
 	</div>
+	
 </body>
 </html>
