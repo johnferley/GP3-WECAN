@@ -6,7 +6,6 @@
 		h1 {text-align: center; font-family: Calibri;}
 		table {table-layout: fixed}
 		#buttons { background: #e6e6e6}
-		input {width: 100%; height: 100%; font-size: 12px}
 		button {width: 100%; height: 100% ; background: transparent; font-size: px; border-width: 2px; border-color: transparent; color: blue}
 		button:hover {border-width: 2px; border-color: #ffffff #e6e6e6 #e6e6e6 #ffffff; border-style: groove ridge ridge groove}
 		body {margin:0; }
@@ -22,7 +21,7 @@ foreach($css_files as $file): ?>
 <body>
 
 <h1>Cards</h1>
-    <div>
+    <div id="data">
 		<?php echo $output; ?>
     </div>
 
@@ -30,14 +29,26 @@ foreach($css_files as $file): ?>
 	<table>
 		<tr>
 		<form action="<?php echo site_url('main/update_valid_card')?>" method="post">
-		<td><div style="float: left; width: 300px"><input type="text" name="enterFilter" placeholder="Enter Card IDs (separated by ',') or 'all'" /></div></td>
-		<td><div style="float: left; width: 150px"><button type="submit" name="submitForm" value="updateValidityOnCard">Update Card Validity</button></div></td>
+		<td><div><input style="width: 300px"type="text" name="enterFilter" placeholder="Enter Card IDs (separated by ',') or 'all'" /></div></td>
+		<td><div><button style="width: 150px" type="submit" name="submitForm" value="updateValidityOnCard">Update Card Validity</button></div></td>
+		</form>
+		<form action="<?php echo site_url('main/delete_duplicates')?>" method="post">
+		<td style="width: 100%"><div><button style="float:right; width: 150px" type="submit" name="submitForm" value="deleteDuplicatesOnCard">Delete Duplicates</button></div></td>
+		</form>
+		</tr>
+		<tr>
+		<form action="<?php echo site_url('main/update_new_card')?>" method="post">
+		<td><div><input style="width: 300px" type="text" name="enterFilter" placeholder="Enter Card IDs (separated by ',') or 'all'" /></div></td>
+		<td><div><button style="width: 150px" type="submit" name="submitForm" value="issueNewCardOnCard">Issue Cards if None</button></div></td>
+		</form>
+		<form action="<?php echo site_url('main/delete_orphans')?>" method="post">
+		<td style="width: 100%"><div><button style="float:right; width: 150px" type="submit" name="submitForm" value="deleteOrphansOnCard">Delete Orphans</button></div></td>
 		</form>
 		</tr>
 		<tr>
 		<form action="<?php echo site_url('main/update_authorisations')?>" method="post">
-		<td><div style="float: left; width: 300px"><input type="text" name="enterFilter" placeholder="Enter Card IDs (separated by ',') or 'all'" /></div></td>
-		<td><div style="float: left; width: 150px"><button type="submit" name="submitForm" value="updateAuthOnCard">Update Authorisations</button></div></td>
+		<td><div><input style="width: 300px" type="text" name="enterFilter" placeholder="Enter Card IDs (separated by ',') or 'all'" /></div></td>
+		<td><div><button style="width: 150px" type="submit" name="submitForm" value="updateAuthOnCard">Update Authorisations</button></div></td>
 		</form>
 		</tr>
 	</table>

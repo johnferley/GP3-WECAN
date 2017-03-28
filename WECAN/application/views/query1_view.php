@@ -44,6 +44,7 @@
             while ($row = mysql_fetch_array($venueList))                    //loop through the venue table
             {
                 $swipeVenue .= "<option value=". $row['venueID'].">" . $row['venueName']. "</option>";  // add the row's venue name to swipeVenue
+                "<option value=1>Breda</option>"
             }
 			
 			while ($row = mysql_fetch_array($fixtureSel))                    //loop through the venue table

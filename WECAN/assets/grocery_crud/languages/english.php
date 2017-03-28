@@ -21,7 +21,7 @@
 
 	$lang['form_edit'] 				= 'Edit';
 	$lang['form_back_to_list'] 		= 'Back to list';
-	$lang['form_update_changes'] 	= 'Update changes';
+	$lang['form_update_changes'] 	= 'Update';
 	$lang['form_cancel'] 			= 'Cancel';
 	$lang['form_update_loading'] 	= 'Loading, updating changes...';
 	$lang['update_success_message'] = 'Your data has been successfully updated.';
@@ -55,8 +55,8 @@
 	$lang['form_active']			= 'active';
 
 	/* Added in version 1.2.2 */
-	$lang['form_save_and_go_back']	= 'Save';
-	$lang['form_update_and_go_back']= 'Update';
+	$lang['form_save_and_go_back']	= 'Save and go back';
+	$lang['form_update_and_go_back']= 'Update and go back';
 
 	/* Upload functionality */
 	$lang['string_delete_file'] 	= "Deleting file";
