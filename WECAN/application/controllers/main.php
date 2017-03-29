@@ -223,7 +223,7 @@ class Main extends CI_Controller {
 					exit();
 				}
 				// If filter contains "all"
-				else if ($filter == "all" || $pressed = "issueNewAll")
+				else if ($filter == "all" || $pressed == "issueNewAll")
 				{
 					// Add card for any competitor that doesnt have one
 					$query = $this->db->query("SELECT * FROM competitor");
@@ -344,7 +344,7 @@ class Main extends CI_Controller {
 					exit();
 				}
 				// If filter contains "all"
-				else if ($filter == "all" || $pressed = "updateValidityAll")
+				else if ($filter == "all" || $pressed == "updateValidityAll")
 				{
 					// Set old cards to invalid for every competitor
 					$query = $this->db->query("SELECT * FROM card WHERE cardValid = TRUE");
@@ -371,7 +371,7 @@ class Main extends CI_Controller {
 					if ($pressed == "updateValidityOnCard")
 					{
 						$filterCard = " WHERE cardID IN (".$filter.")";
-						$test = $this->db->query("SELECT * FROM competitor".$filterCard)->num_rows();
+						$test = $this->db->query("SELECT * FROM card".$filterCard)->num_rows();
 						if ($test == 0)
 						{
 							echo ("<SCRIPT LANGUAGE='JavaScript'>
@@ -486,7 +486,6 @@ class Main extends CI_Controller {
 				{
 					$ok = false;
 				}
-
 				// If filter is blank
 				if ($filter == "")
 				{
@@ -497,7 +496,7 @@ class Main extends CI_Controller {
 					exit();
 				}
 				// If filter contains "all"
-				else if ($filter == "all" || $pressed = "updateAuthAll")
+				else if ($filter == "all" || $pressed == "updateAuthAll")
 				{
 					// Update authorisations for all competitors
 					// Reset authorisations
@@ -1604,35 +1603,45 @@ class Main extends CI_Controller {
 		if ($this->session->userdata('logged_in'))
 		{
 			$name = $this->input->post("name");
-			$password = $this->input->post("password");
+			$password1 = $this->input->post("password1");
+			$password2 = $this->input->post("password2");
 			$sessiondata = $this->session->userdata('logged_in');
 			$message = "";
 
-			if ($name <> $sessiondata["name"] && $name <> "")
+			if ($password1 == $password2)
 			{
-				$this->db->query("UPDATE user SET name = '".$name."' WHERE username = '".$sessiondata["user"]."'");
-				$message .= "Name";
-				$sessiondata["name"] = $name;
-				 $this->session->set_userdata('logged_in', $sessiondata);
-			}
+				if ($name <> $sessiondata["name"] && $name <> "")
+				{
+					$this->db->query("UPDATE user SET name = '".$name."' WHERE username = '".$sessiondata["user"]."'");
+					$message .= "Name";
+					$sessiondata["name"] = $name;
+					$this->session->set_userdata('logged_in', $sessiondata);
+				}
 
-			if ($password <> "")
-			{
-				$this->db->query("UPDATE user SET password = '".md5($password)."' WHERE username = '".$sessiondata["user"]."'");
-				$message .= " and Password";
-			}
+				if ($password1 <> "")
+				{
+					{
+						$this->db->query("UPDATE user SET password = '".md5($password1)."' WHERE username = '".$sessiondata["user"]."'");
+						$message .= " and Password";
+					}
+				}
 
-			if ($message == " and Password")
-			{
-				$message = "Password";
-			}
-			if ($message <> "")
-			{
-				$message .= " updated";
+				if ($message == " and Password")
+				{
+					$message = "Password";
+				}
+				if ($message <> "")
+				{
+					$message .= " updated";
+				}
+				else
+				{
+					$message = "No updates made";
+				}
 			}
 			else
 			{
-				$message = "No updates made";
+				$message = "Passwords do not match";
 			}
 			echo ("<SCRIPT LANGUAGE='JavaScript'>
 							window.alert('".$message."')

@@ -27,7 +27,11 @@
         </tr>
         <tr>
             <td><p style="text-align: right">Password: </p></td>
-            <td><input name="password" type="password" id="password" size="30" maxlength="32"></td>
+            <td><input name="password1" type="password" id="password1" size="30" maxlength="32"></td>
+        </tr>
+        <tr>
+            <td><p style="text-align: right">Confirm Password: </p></td>
+            <td><input name="password2" type="password" id="password2" size="30" maxlength="32"></td>
         </tr>
     </table>
     <div align="center">
