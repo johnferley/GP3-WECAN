@@ -1414,25 +1414,34 @@ class Main extends CI_Controller {
 	
 	public function authCheck()
 	{
+
 		if ($this->session->userdata('logged_in'))
 		{
-			$cardSelected = $this->input->post('cardSelected');
-			$fixtureSelected = $this->input->post('fixtureSelected');
-			
-			$cardAtFixture = $this->db->query('SELECT cardValid FROM card
-												JOIN competitor ON card.Competitor_competitorID = competitor.competitorID
-												JOIN team_has_fixture ON competitor.Team_teamID = team_has_fixture.Team_teamID
-													WHERE cardID = '. $cardSelected . ' AND Fixture_fixtureID = ' . $fixtureSelected . '');
-			
-			
-			echo $this->table->generate($cardAtFixture);
-			
-			if ($cardAtFixture->num_rows() > 0){
-				echo ('This card is Valid!!!');
-			}else{
-				echo 'CARD NOT VALID';
-			}
-			$this->load->view('querynav_view');
+      //$this->load->view('header
+      $cardSelected = $this->input->post('cardSelected');
+      $fixtureSelected = $this->input->post('fixtureSelected');
+
+      $this->db->query('drop table if exists authTemp');
+      $this->db->query('create temporary table authTemp AS (SELECT cardValid FROM card
+                        JOIN competitor ON card.Competitor_competitorID = competitor.competitorID
+                        JOIN team_has_fixture ON competitor.Team_teamID = team_has_fixture.Team_teamID
+                          WHERE cardID = '. $cardSelected . ' AND Fixture_fixtureID = ' . $fixtureSelected . ')');
+
+
+      $query = $this->db->query('select * from authTemp');
+      //echo $this->table->generate($query);
+
+      if ($query->num_rows() > 0){
+        echo ("<SCRIPT LANGUAGE='JavaScript'>
+                          window.alert('This Card is Valid!!!')
+                          window.location.href=document.referrer
+                          </SCRIPT>");
+      }else{
+        echo ("<SCRIPT LANGUAGE='JavaScript'>
+                          window.alert('CARD NOT VALID')
+                          window.location.href=document.referrer
+                          </SCRIPT>");
+      }
 		}
 		else
 		{
@@ -1443,43 +1452,53 @@ class Main extends CI_Controller {
 
 	public function fixtureSwipe()
 	{
+
 		if ($this->session->userdata('logged_in'))
 		{
-			$cardSelected = $this->input->post('cardSelected');
-			$dateList = $this->input->post('dateList');
-			$venueSelected = $this->input->post('venueSelected');
-			$authorised = 0;
-		
-			echo 'DateList is ' . $dateList . ' '; // check if sateList is working
-			echo 'VenueSelected is ' . $venueSelected; // check venue
-		
-			$fixtureList = $this->db->query('SELECT * FROM Fixture WHERE fixtureDate = DATE "' . $dateList . '" AND Venue_venueID = '. $venueSelected .' LIMIT 1');
-		
-			echo $this->table->generate($fixtureList);
-			//echo $fixtureInRange;
-				// fixtureList lists matches at the selected DATE and VENUE
-				
+      $cardSelected = $this->input->post('cardSelected');
+      $dateList = $this->input->post('dateList');
+      $venueSelected = $this->input->post('venueSelected');
+      $authorised = 0;
 
-			foreach($fixtureList->result() as $fixtureRows)
-			
-				{
-					if ($fixtureList = true){
-						$authList = $this->db->query('SELECT * FROM authorisation WHERE Fixture_FixtureID = ' . $fixtureRows->fixtureID . ' AND Card_CardID = '. $cardSelected .'');
-						echo  'authList ' . $this->table->generate($authList);
-						$authorised = 1;
-					}else{
-						$authorised = 0;
-					}
-				}
-			
-			
-			$this->db->query('INSERT INTO card_access_log (accessDate, accessAuthorised, Venue_venueID, Card_cardID) VALUES (DATE "' . $dateList .'", ' . $authorised . ', ' . $venueSelected . ', ' . $cardSelected. ')');
-		
-			$this->load->view('querynav_view');
-			// Errors when swiping again after loading this view. Might need temp tables?
-		
-		
-				// # of rows in where CARDS have access to selected FIXTURE
+      //echo 'DateList is ' . $dateList . ' '; // check if sateList is working
+      //echo 'VenueSelected is ' . $venueSelected; // check venue
+
+      $fixtureList = $this->db->query('SELECT * FROM Fixture WHERE fixtureDate = DATE "' . $dateList . '" AND Venue_venueID = '. $venueSelected .' LIMIT 1');
+
+      //echo $this->table->generate($fixtureList);
+        // fixtureList lists matches at the selected DATE and VENUE
+
+
+      foreach($fixtureList->result() as $fixtureRows)
+
+        {
+          if ($fixtureList = true){
+            $authList = $this->db->query('SELECT * FROM authorisation WHERE Fixture_FixtureID = ' . $fixtureRows->fixtureID . ' AND Card_CardID = '. $cardSelected .'');
+            //echo  'authList ' . $this->table->generate($authList);
+            $authorised = 1;
+            echo ("<SCRIPT LANGUAGE='JavaScript'>
+                          window.alert('ACCESS AUTHORISED')
+                          window.location.href=document.referrer
+                          </SCRIPT>");
+          }
+          else{
+            $authorised = 0;
+          }
+        }
+
+
+      $this->db->query('INSERT INTO card_access_log (accessDate, accessAuthorised, Venue_venueID, Card_cardID) VALUES (DATE "' . $dateList .'", ' . $authorised . ', ' . $venueSelected . ', ' . $cardSelected. ')');
+      if ($authorised !=1)  // Tried to use "if authorised = 0" but Alert box doesn't show up
+        {echo ("<SCRIPT LANGUAGE='JavaScript'> 
+            window.alert('ACCESS NOT AUTHORISED')
+            window.location.href=document.referrer
+            </SCRIPT>");
+        }
+
+      // Errors when swiping again after loading this view. Might need temp tables?
+
+
+        // # of rows in where CARDS have access to selected FIXTURE
 		}
 		else
 		{

@@ -64,7 +64,48 @@
                 "</select>");       // selet fixture
                 
                 
-                
+                	<!--><form action= "<?php echo site_url ('main/authCheck')?>" method = 'post'>
+				<?php /*
+					$cardIDs = "";
+					$swipeDate = "";
+					$swipeVenue = "";
+					$fixtureIDs = "";
+					
+					
+					$cardList = mysql_query('select * from card');          // get the whole card list
+					$dateList = "<input type = 'date' name = 'dateList'>";  // get a list of dates named dateList
+					$venueList = mysql_query ('select * from venue');       // get a list of all venues
+					$fixtureSel = mysql_query('SELECT * FROM fixture');		// get all fixtures
+					
+						while ($row = mysql_fetch_array($cardList))                 // loop through row in card table
+						{
+							$cardIDs .= "<option value =". $row['cardID']. "> Card ID:" . $row['cardID']. "</option>";    // add the row's card ID to cardIDs
+						}
+						
+						while ($row = mysql_fetch_array($venueList))                    //loop through the venue table
+						{
+							$swipeVenue .= "<option value=". $row['venueID'].">" . $row['venueName']. "</option>";  // add the row's venue name to swipeVenue
+						}
+						
+						while ($row = mysql_fetch_array($fixtureSel))                    //loop through the venue table
+						{
+							$fixtureIDs .= "<option value =". $row['fixtureID']. ">". $row['fixtureDate']. ", Venue " . $row['Venue_venueID'] . "</option>";  // add the row's venue name to swipeVenue
+						}
+						
+						
+							echo ('<td><div style="float: left; width: 50px"> '.
+							"<select name='cardSelected'>
+								" . $cardIDs . 
+							"</select></div></td>");       //list of card IDs
+							
+							echo ('<td><div style="float: left; width: 150px"> '.
+							"<select name='fixtureSelected'>
+								" . $fixtureIDs . 
+							"</select></div></td>");*/	// select fixture
+				?>
+				
+				<td><div style="float: left; width: 150px"><button type="submit">Select</button></div></td>
+			</form></-->
             
     ?>
     <button type="submit">GOOOOO!!</button>
