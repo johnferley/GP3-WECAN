@@ -894,8 +894,6 @@ class Main extends CI_Controller {
 		$cardSelected = $this->input->post('cardSelected');
 		$this->load->view('header', $sessiondata);
 		$this->load->view('query1_view');
-		
-		
 	}
 
 	public function query2()
@@ -982,23 +980,33 @@ class Main extends CI_Controller {
 	
 	public function authCheck()
 	{
+		
+		//$this->load->view('header
 		$cardSelected = $this->input->post('cardSelected');
 		$fixtureSelected = $this->input->post('fixtureSelected');
 		
-		$cardAtFixture = $this->db->query('SELECT cardValid FROM card
+		$this->db->query('drop table if exists authTemp');
+		$this->db->query('create temporary table authTemp AS (SELECT cardValid FROM card
 											JOIN competitor ON card.Competitor_competitorID = competitor.competitorID
 											JOIN team_has_fixture ON competitor.Team_teamID = team_has_fixture.Team_teamID
-												WHERE cardID = '. $cardSelected . ' AND Fixture_fixtureID = ' . $fixtureSelected . '');
+												WHERE cardID = '. $cardSelected . ' AND Fixture_fixtureID = ' . $fixtureSelected . ')');
 		
 		
-		echo $this->table->generate($cardAtFixture);
-		
-		if ($cardAtFixture->num_rows() > 0){
-			echo ('This card is Valid!!!');
+		$query = $this->db->query('select * from authTemp');
+		//echo $this->table->generate($query);
+
+		if ($query->num_rows() > 0){
+			echo ("<SCRIPT LANGUAGE='JavaScript'>
+                        window.alert('This Card is Valid!!!')
+                        window.location.href=document.referrer
+                        </SCRIPT>");
 		}else{
-			echo 'CARD NOT VALID';
+			echo ("<SCRIPT LANGUAGE='JavaScript'>
+                        window.alert('CARD NOT VALID')
+                        window.location.href=document.referrer
+                        </SCRIPT>");
 		}
-		$this->load->view('querynav_view');
+		
 	}
 	public function fixtureSwipe()
 	{
@@ -1007,13 +1015,12 @@ class Main extends CI_Controller {
 		$venueSelected = $this->input->post('venueSelected');
 		$authorised = 0;
        
-		echo 'DateList is ' . $dateList . ' '; // check if sateList is working
-		echo 'VenueSelected is ' . $venueSelected; // check venue
+		//echo 'DateList is ' . $dateList . ' '; // check if sateList is working
+		//echo 'VenueSelected is ' . $venueSelected; // check venue
        
 		$fixtureList = $this->db->query('SELECT * FROM Fixture WHERE fixtureDate = DATE "' . $dateList . '" AND Venue_venueID = '. $venueSelected .' LIMIT 1');
 	   
-		echo $this->table->generate($fixtureList);
-		//echo $fixtureInRange;
+		//echo $this->table->generate($fixtureList);
 			// fixtureList lists matches at the selected DATE and VENUE
 			
 
@@ -1022,17 +1029,27 @@ class Main extends CI_Controller {
 			{
 				if ($fixtureList = true){
 					$authList = $this->db->query('SELECT * FROM authorisation WHERE Fixture_FixtureID = ' . $fixtureRows->fixtureID . ' AND Card_CardID = '. $cardSelected .'');
-					echo  'authList ' . $this->table->generate($authList);
+					//echo  'authList ' . $this->table->generate($authList);
 					$authorised = 1;
-				}else{
+					echo ("<SCRIPT LANGUAGE='JavaScript'>
+                        window.alert('ACCESS AUTHORISED')
+                        window.location.href=document.referrer
+                        </SCRIPT>");
+				}
+				else{
 					$authorised = 0;
 				}
 			}
 		
 		
 		$this->db->query('INSERT INTO card_access_log (accessDate, accessAuthorised, Venue_venueID, Card_cardID) VALUES (DATE "' . $dateList .'", ' . $authorised . ', ' . $venueSelected . ', ' . $cardSelected. ')');
+		if ($authorised !=1)  // Tried to use "if authorised = 0" but Alert box doesn't show up
+			{echo ("<SCRIPT LANGUAGE='JavaScript'> 
+					window.alert('ACCESS NOT AUTHORISED')
+					window.location.href=document.referrer
+					</SCRIPT>");
+			}
     
-		$this->load->view('querynav_view');
 		// Errors when swiping again after loading this view. Might need temp tables?
        
        

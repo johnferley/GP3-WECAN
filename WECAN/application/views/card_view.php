@@ -40,6 +40,45 @@ foreach($css_files as $file): ?>
 		<td><div style="float: left; width: 150px"><button type="submit" name="submitForm" value="updateAuthOnCard">Update Authorisations</button></div></td>
 		</form>
 		</tr>
+    <tr>
+      			<form action= "<?php echo site_url ('main/fixtureSwipe')?>" method = 'post'>
+				<?php 
+					$cardIDs = "<option value = '' disabled selected> Select Card ID </option>";
+					$swipeDate = "";
+					$swipeVenue = "<option value = '' disabled selected> Select Venue </option>";
+					
+					
+					$cardList = mysql_query('select * from card');          // get the whole card list
+					$dateList = "<input type = 'date' name = 'dateList'>";  // get a list of dates named dateList
+					$venueList = mysql_query ('select * from venue');       // get a list of all venues
+					
+					while ($row = mysql_fetch_array($cardList))                 // loop through card table
+					{
+						$cardIDs .= "<option>" . $row['cardID']. "</option>";    // add the row's card ID to cardIDs
+					}
+					
+					//foreach (mysql_fetch_array($venueList) as $row)
+					while ($row = mysql_fetch_array($venueList))                    //loop through the venue table
+					{
+						$swipeVenue .= "<option value=". $row['venueID'].">" . $row['venueName']. "</option>";  // add the row's venue name to swipeVenue
+					}
+					
+					echo ('<td><div style="float: left; width: 150px"> '.
+								"<select name='cardSelected'>
+									" . $cardIDs . 
+								"</select></div></td>");
+					
+					echo ('<td><div style="float: left; width: 120px"> '. 
+							$dateList). '</div></td>';
+								
+					echo ('<td><div style="float: left; width: 140px"> '.
+								"<select name='venueSelected'>
+									" . $swipeVenue . 
+								"</select></div></td>");
+				?>
+				<td><button type="submit">Simulate Entry</button></td>
+			</form>;
+    </tr>
 	</table>
 	</div>
 
