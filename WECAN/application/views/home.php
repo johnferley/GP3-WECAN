@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8" />
 	<style>
-		h1 { font-size: 5em; text-align: center; margin: 0 0 0px 0;	font-family: Calibri; }
+		h1 { font-size: 5em; text-align: center; margin: 0 0 0 0;	font-family: Calibri; }
 		h2 { text-align: center; margin: 0 0 0px 0;	font-family: Calibri; }
 		p.p-centre { text-align: center; font-family: Calibri; }
 		p { font-family: Calibri; margin: 0 0 0px 0; }

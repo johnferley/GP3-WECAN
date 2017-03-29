@@ -46,26 +46,9 @@
             while ($row = mysql_fetch_array($venueList))                    //loop through the venue table
             {
                 $swipeVenue .= "<option value=". $row['venueID'].">" . $row['venueName']. "</option>";  // add the row's venue name to swipeVenue
-            }
-            
-            
-                echo ('CardID: '.
-                "<select name='cardSelected'>
-                    " . $cardIDs . 
-                "</select>");       //list of card IDs
-                
-                echo ('Date: '. $dateList); // list of dates
-                
-                echo('Venue '.
-                    "<select name='venueSelected'>
-                    " . $swipeVenue . 
-                "</select>");       // selet venue
-                
-                
-                
-            
+            } 
     ?>
-    <button type="submit">SWIIPE!!</button>
+    <td><button type="submit">SWIIPE!!</button></td>
 </form>;
 <!-->
     Error when date is empty, 

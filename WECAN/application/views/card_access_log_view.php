@@ -4,6 +4,7 @@
 	<meta charset="utf-8" />
 	<style>
 		h1 { text-align: center; 	font-family: Calibri; }
+		body {margin:0; }
 	</style>
 <?php
 foreach($css_files as $file): ?>
