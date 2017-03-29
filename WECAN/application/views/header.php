@@ -38,8 +38,8 @@
 		<li><a id='issue_log' href='<?php echo site_url('main/issue_log')?>'>Issue Logs</a></li>
 		<li><a id='team' href='<?php echo site_url('main/team')?>'>Teams</a></li>
 			<ul id="rightnav">
-			<li><a id='logout' href='<?php echo site_url('main/logout')?>'>Logout</a></li>
-			<li><a id='account' href='<?php echo site_url('')?>'>Account</a></li>
+			<li><a id='logout' onclick="return confirm('Are you sure?');" href='<?php echo site_url('main/logout')?>'>Logout</a></li>
+			<li><a id='account' href='<?php echo site_url('main/account')?>'>Account</a></li>
 			<li><a href='<?php echo site_url('main/querynav')?>'>QueryTest</a></li>
 			</ul>
 		</ul>
@@ -47,3 +47,4 @@
 	
 </body>
 </html>
+

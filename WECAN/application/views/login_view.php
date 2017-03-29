@@ -9,59 +9,36 @@
 		h5 { font-family: Calibri; color: #666666; }
 		#cogs { display: block; padding-top: 20px; margin-left: auto; margin-right: auto; }
 		body {margin:0; }
+		button { margin: 0 3px 0 0; font-size: 15px; display: block; padding: 8px 15px; font-weight: bold; text-decoration: none; color: #000; background-color: #f69d0e; border: 1px solid #c1c1c1;}
+		button:hover {background-color: #ba1f1c;}
 	</style>
 </head>
 <body>
 
 <h1>WECAN</h1>
 
-
-
-<div align="center">
+<div>
 	<img id="cogs" src="http:\\localhost:8080\WECAN\assets\images\logo.png" alt="WECAN Logo" height="260" width="380">
 </div>
 
 <div align="center">
 <form action="<?php echo site_url('login/handle_login')?>" method="post">
-<td width="168" height="125">&nbsp;</td>
-                      <td width="303">&nbsp;</td>
-                      <td width="203">&nbsp;</td>
-                  
-                    <p> Please enter your Username and Password: </p>
-                    <tr>
-                      <td height="162">&nbsp;</td>
-                      <td valign="top">
-                      <table width="303" height="133" border="0">
-                        <tr>
-                          <td width="105" height="40"> <p>Username:</p></td>
-                          <td width="182">
-                            <label for="Username"></label>
-                            <input name="username" type="text" id="username" size="30" maxlength="50">
-                          </td>
-                        </tr>
-                        <tr>
-                          <td height="44"><p>Password: </p></td>
-                          <td>
-                            <label for="Password"></label>
-                            <input name="password" type="text" id="password" size="30" maxlength="32">
-                          </td>
-                        </tr>
-                        <tr>
-                          <td height="39">&nbsp;</td>
-                          <td>
-                            <h5>
-                              <input type="submit" name="Login" id="Login" value="    Login    ">
-                              Forgot password?
-                            </h5>
-                          </td>
-                        </tr>
-                      </table>                        <p>&nbsp;</p></td>
-                      <td>&nbsp;</td>
-                    </tr>
-                    <tr>
-                      <td>&nbsp;</td>
-                      <td>&nbsp;</td>
-                      <td>&nbsp;</td>
+  <div align="center">
+      <p> Please enter your Username and Password: </p>
+  </div>
+  <table align="center">
+  <tr>
+    <td><p style="text-align: right">Username:</p></td>
+    <td><input name="username" type="text" id="username" size="30" maxlength="50"></td>
+  </tr>
+  <tr>
+    <td><p style="text-align: right">Password: </p></td>
+    <td><input name="password" type="password" id="password" size="30" maxlength="32"></td>
+  </tr>
+  </table>
+  <div align="center">
+    <button type="submit" name="Login" id="Login">Login</button>
+  </div>
 </form>
 </div>
 
