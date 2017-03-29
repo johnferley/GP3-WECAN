@@ -10,7 +10,6 @@
 		button {width: 100%; height: 100% ; background: transparent; font-size: px; border-width: 2px; border-color: transparent; color: blue}
 		button:hover {border-width: 2px; border-color: #ffffff #e6e6e6 #e6e6e6 #ffffff; border-style: groove ridge ridge groove}
 		body {margin:0; }
-		tr (padding:20px)
 	</style>
 <?php
 foreach($css_files as $file): ?>
@@ -30,24 +29,19 @@ foreach($css_files as $file): ?>
 	<div id="buttons">
 	<table>
 		<tr>
-			<form action="<?php echo site_url('main/update_valid_card')?>" method="post">
-				<td colspan = '3'><div style="float: left; width: 300px"><input type="text" name="enterFilter" placeholder="Enter Card IDs (separated by ',') or 'all'" /></div></td>
-				<td><div style="float: left; width: 150px"><button type="submit" name="submitForm" value="updateValidityOnCard">Update Card Validity</button></div></td>
-			</form>
+		<form action="<?php echo site_url('main/update_valid_card')?>" method="post">
+		<td><div style="float: left; width: 300px"><input type="text" name="enterFilter" placeholder="Enter Card IDs (separated by ',') or 'all'" /></div></td>
+		<td><div style="float: left; width: 150px"><button type="submit" name="submitForm" value="updateValidityOnCard">Update Card Validity</button></div></td>
+		</form>
 		</tr>
 		<tr>
-			<form action="<?php echo site_url('main/update_authorisations')?>" method="post">
-				<td colspan = '3'><div style="float: left; width: 300px"><input type="text" name="enterFilter" placeholder="Enter Card IDs (separated by ',') or 'all'" /></div></td>
-				<td><div style="float: left; width: 150px"><button type="submit" name="submitForm" value="updateAuthOnCard">Update Authorisations</button></div></td>
-			</form>
+		<form action="<?php echo site_url('main/update_authorisations')?>" method="post">
+		<td><div style="float: left; width: 300px"><input type="text" name="enterFilter" placeholder="Enter Card IDs (separated by ',') or 'all'" /></div></td>
+		<td><div style="float: left; width: 150px"><button type="submit" name="submitForm" value="updateAuthOnCard">Update Authorisations</button></div></td>
+		</form>
 		</tr>
-		
-		<tr>
-		
-		</tr>
-
-		<tr>
-			<form action= "<?php echo site_url ('main/fixtureSwipe')?>" method = 'post'>
+    <tr>
+      			<form action= "<?php echo site_url ('main/fixtureSwipe')?>" method = 'post'>
 				<?php 
 					$cardIDs = "<option value = '' disabled selected> Select Card ID </option>";
 					$swipeDate = "";
@@ -84,7 +78,7 @@ foreach($css_files as $file): ?>
 				?>
 				<td><button type="submit">Simulate Entry</button></td>
 			</form>;
-		</tr>
+    </tr>
 	</table>
 	</div>
 
@@ -102,8 +96,6 @@ if (/edit/.test(window.location.href))
 	document.getElementById('buttons').style.display = 'none'
 }
 </script>
-
-
 
 </body>
 </html>
