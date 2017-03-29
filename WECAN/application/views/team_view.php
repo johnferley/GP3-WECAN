@@ -30,7 +30,7 @@ foreach($css_files as $file): ?>
 		<tr>
 		<form action="<?php echo site_url('main/update_valid_card')?>" method="post">
 		<td><div><input style="width: 300px"type="text" name="enterFilter" placeholder="Enter Team IDs (separated by ',') or 'all'" /></div></td>
-		<td><div><button style="width: 150px" type="submit" name="submitForm" value="updateValidityOnTeam">Update Card Validity</button></div></td>
+		<td><div><button style="width: 150px" type="submit" name="submitForm" value="updateValidityOnTeam">Update Cards</button></div></td>
 		</form>
 		<form action="<?php echo site_url('main/delete_duplicates')?>" method="post">
 		<td style="width: 100%"><div><button style="float:right; width: 150px" type="submit" name="submitForm" value="deleteDuplicatesOnTeam">Delete Duplicates</button></div></td>
@@ -40,7 +40,7 @@ foreach($css_files as $file): ?>
 		<tr>
 		<form action="<?php echo site_url('main/update_new_card')?>" method="post">
 		<td><div><input style="width: 300px" type="text" name="enterFilter" placeholder="Enter Team IDs (separated by ',') or 'all'" /></div></td>
-		<td><div><button style="width: 150px" type="submit" name="submitForm" value="issueNewCardOnTeam">Issue Cards if None</button></div></td>
+		<td><div><button style="width: 150px" type="submit" name="submitForm" value="issueNewCardOnTeam">Issue Cards</button></div></td>
 		</form>
 		</tr>
 		<tr>

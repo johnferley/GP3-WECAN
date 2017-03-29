@@ -40,7 +40,6 @@
 			<ul id="rightnav">
 			<li><a id='logout' onclick="return confirm('Are you sure?');" href='<?php echo site_url('main/logout')?>'>Logout</a></li>
 			<li><a id='account' href='<?php echo site_url('main/account')?>'>Account</a></li>
-			<li><a href='<?php echo site_url('main/querynav')?>'>QueryTest</a></li>
 			</ul>
 		</ul>
 	</div>

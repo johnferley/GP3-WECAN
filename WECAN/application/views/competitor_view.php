@@ -30,7 +30,7 @@ foreach($css_files as $file): ?>
 		<tr>
 		<form action="<?php echo site_url('main/update_valid_card')?>" method="post">
 		<td><div><input style="width: 300px"type="text" name="enterFilter" placeholder="Enter Competitor IDs (separated by ',') or 'all'" /></div></td>
-		<td><div><button style="width: 150px" type="submit" name="submitForm" value="updateValidityOnCompetitor">Update Card Validity</button></div></td>
+		<td><div><button style="width: 150px" type="submit" name="submitForm" value="updateValidityOnCompetitor">Update Cards</button></div></td>
 		</form>
 		<form action="<?php echo site_url('main/delete_duplicates')?>" method="post">
 		<td style="width: 100%"><div><button style="float:right; width: 150px" type="submit" name="submitForm" value="deleteDuplicatesOnCompetitor">Delete Duplicates</button></div></td>
@@ -39,13 +39,33 @@ foreach($css_files as $file): ?>
 		<tr>
 		<form action="<?php echo site_url('main/update_new_card')?>" method="post">
 		<td><div><input style="width: 300px" type="text" name="enterFilter" placeholder="Enter Competitor IDs (separated by ',') or 'all'" /></div></td>
-		<td><div><button style="width: 150px" type="submit" name="submitForm" value="issueNewCardOnCompetitor">Issue Cards if None</button></div></td>
+		<td><div><button style="width: 150px" type="submit" name="submitForm" value="issueNewCardOnCompetitor">Issue Cards</button></div></td>
 		</form>
 		</tr>
 		<tr>
 		<form action="<?php echo site_url('main/update_authorisations')?>" method="post">
 		<td><div><input style="width: 300px" type="text" name="enterFilter" placeholder="Enter Competitor IDs (separated by ',') or 'all'" /></div></td>
 		<td><div><button style="width: 150px" type="submit" name="submitForm" value="updateAuthOnCompetitor">Update Authorisations</button></div></td>
+		</form>
+		</tr>
+		<tr>
+		<form action= "<?php echo site_url ('main/compVenueCheck')?>" method = 'post'>
+			<?php
+				$compIDs = "<option value = '' disabled selected> Select Competitor </option>";		
+				$compSel = mysql_query('SELECT * FROM competitor');
+					
+				while ($row = mysql_fetch_array($compSel))                    //loop through the venue table
+				{
+					$compIDs .= "<option value =" . $row['competitorID'] . ">". $row['competitorFirstName']. " ". $row['competitorLastName'] .  "</option>";  // add the row's venue name to swipeVenue
+				}
+					
+				echo ('<td><div style="float: left; width: 99%"> '.
+					"<select style='width: 300px' name='compSelected'>
+					" . $compIDs . 
+					"</select></div></td>");       //list of competitor IDs
+	
+			?>
+			<td><button type="submit">Venues Authorised</button></td>
 		</form>
 		</tr>
 	</table>

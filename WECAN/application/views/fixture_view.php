@@ -30,11 +30,31 @@ foreach($css_files as $file): ?>
 		<tr>
 		<form action="<?php echo site_url('main/update_authorisations')?>" method="post">
 		<td><div><input style="width: 300px" type="text" name="enterFilter" placeholder="Enter Fixture IDs (separated by ',') or 'all'" /></div></td>
-		<td><div><button style="width: 150px" type="submit" name="submitForm" value="updateAuthOnFixture">Update Authorisations</button></div></td>
+		<td><div><button style="width: 160px" type="submit" name="submitForm" value="updateAuthOnFixture">Update Authorisations</button></div></td>
 		</form>
 		<form action="<?php echo site_url('main/delete_duplicates')?>" method="post">
 		<td style="width: 100%"><div><button style="float:right; width: 150px" type="submit" name="submitForm" value="deleteDuplicatesOnFixture">Delete Duplicates</button></div></td>
 		</form>
+		</tr>
+		<tr>
+		<form action= "<?php echo site_url ('main/compList')?>" method = 'post'>
+			<?php 
+				$fixtureIDs = "<option value = '' disabled selected> Select Fixture ID </option>";
+				$fixtureSel = mysql_query('SELECT * FROM fixture');
+					
+				while ($row = mysql_fetch_array($fixtureSel))                    //loop through the venue table
+				{
+					$fixtureIDs .= "<option>". $row['fixtureID']. "</option>";  // add the row's venue name to swipeVenue
+				}
+				
+					
+				echo('<td><div style="float: left; width: 99%"> '.
+					"<select style='width: 300px' name='fixtureSelected'>
+					" . $fixtureIDs . 
+				"</select></div></td>");       // selet fixture
+
+			?>
+			<td><button type="submit">Competitors Authorised</button></td>
 		</tr>
 	</table>
 	</div>

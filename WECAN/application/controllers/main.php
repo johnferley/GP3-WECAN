@@ -500,6 +500,7 @@ class Main extends CI_Controller {
 				{
 					// Update authorisations for all competitors
 					// Reset authorisations
+					$rowsDeleted = $this->db->query("SELECT * FROM authorisation")->num_rows();
 					$this->db->query("DELETE FROM authorisation");
 					// Add authorisations based on fixings
 					$card = $this->db->query("SELECT * FROM card WHERE cardValid = TRUE");
@@ -767,6 +768,7 @@ class Main extends CI_Controller {
 					}
 					// Update authorisations for all competitors based on filters
 					// Reset authorisations based on filters
+					$rowsDeleted = $this->db->query("SELECT * FROM authorisation")->num_rows();
 					$this->db->query("DELETE FROM authorisation".$filterCardOnAuth);
 					// Add authorisations based on fixings and filters
 					$card = $this->db->query("SELECT * FROM card WHERE cardValid = TRUE".$filterCardOnCard.$filterCompetitorsOnCard);
@@ -800,10 +802,47 @@ class Main extends CI_Controller {
 									</SCRIPT>");
 					exit();
 				}
+				$counter += $rowsDeleted;
 				echo ("<SCRIPT LANGUAGE='JavaScript'>
 								window.alert('Updated ".$counter." rows')
 								window.location.href=document.referrer
 								</SCRIPT>");
+		}
+		else
+		{
+			redirect('login', 'refresh');
+		}
+	}
+
+	public function expire_cards()
+	{
+		if ($this->session->userdata('logged_in'))
+		{
+			$countOrig = $this->db->query("SELECT * FROM card WHERE cardValid = 0")->num_rows();
+			$this->db->query("UPDATE card SET cardValid = 0 WHERE cardExpiryDate < CURDATE()");
+			$countNew = $this->db->query("SELECT * FROM card WHERE cardValid = 0")->num_rows();
+
+			$counter = 0;
+			$query = $this->db->query("SELECT * FROM card WHERE cardValid = 1");
+			foreach ($query->result() as $row)
+			{
+				$team = $this->db->query("SELECT * FROM team WHERE teamID = ".$row->Competitor_competitorID." LIMIT 1");
+				foreach ($team->result() as $r)
+				{
+					$eliminated = $r->eliminated;
+				}
+				if ($eliminated == 1)
+				{
+					$counter += 1;
+					$this->db->query("UPDATE card SET cardValid = 0 WHERE Competitor_competitorID = ".$row->Competitor_competitorID);
+				}
+			}
+
+			$count = $countNew-$countOrig+$counter;
+			echo ("<SCRIPT LANGUAGE='JavaScript'>
+							window.alert('Updated ".$count." rows')
+							window.location.href=document.referrer
+							</SCRIPT>");
 		}
 		else
 		{
@@ -822,7 +861,7 @@ class Main extends CI_Controller {
 				$this->load->view('header', $sessiondata);
         
 				$crud = new grocery_CRUD();
-				$crud->set_theme('flexigrid');
+				$crud->set_theme('datatables');
 				$crud->set_table('competitor');
 				$crud->set_subject('Competitor');
 				$crud->columns('competitorID', 'Title_titleID', 'competitorFirstName', 'competitorLastName', 'competitorDOB', 'competitorPhoto', 'Team_teamID', 'Role_roleID');
@@ -887,7 +926,7 @@ class Main extends CI_Controller {
 				$this->load->view('header', $sessiondata);
 
 				$crud = new grocery_CRUD();
-				$crud->set_theme('flexigrid');
+				$crud->set_theme('datatables');
 				// Create temporary table using SQL
 				$this->db->query("DROP TABLE IF EXISTS temp_fixture_venue");
 				$this->db->query("CREATE TEMPORARY TABLE temp_fixture_venue (PRIMARY KEY (fixtureID)) SELECT fixture.fixtureID, fixture.fixtureDate,  venue.venueName,  venue.venueStadium FROM venue JOIN fixture ON venue.venueID = fixture.Venue_venueID");
@@ -953,7 +992,7 @@ class Main extends CI_Controller {
 				$this->load->view('header', $sessiondata);
         
 				$crud = new grocery_CRUD();
-				$crud->set_theme('flexigrid');
+				$crud->set_theme('datatables');
 				$crud->set_table('venue');
 				$crud->set_subject('Venue');
 				$crud->columns('venueID','venueName', 'venueStadium');
@@ -1010,7 +1049,7 @@ class Main extends CI_Controller {
 				$this->load->view('header', $sessiondata);
         
 				$crud = new grocery_CRUD();
-				$crud->set_theme('flexigrid');
+				$crud->set_theme('datatables');
 				$crud->set_table('fixture');
 				$crud->set_subject('Fixture');
 				$crud->columns('fixtureID', 'fixtureDate', 'Venue_venueID','teams');
@@ -1070,7 +1109,7 @@ class Main extends CI_Controller {
 				$this->load->view('header', $sessiondata);
         
 				$crud = new grocery_CRUD();
-				$crud->set_theme('flexigrid');
+				$crud->set_theme('datatables');
 				$crud->set_table('nfa');
 				$crud->set_subject('NFA');
 				$crud->columns('nfaID', 'nfaName', 'nfaAcronym');
@@ -1128,21 +1167,20 @@ class Main extends CI_Controller {
 				$this->load->view('header', $sessiondata);
         
 				$crud = new grocery_CRUD();
-				$crud->set_theme('flexigrid');
+				$crud->set_theme('datatables');
 				$crud->set_table('card_access_log');
 				$crud->set_subject('Access Log');
-				$crud->columns('accessID', 'accessDate', 'accessAuthorised', 'Venue_venueID', 'Card_issueNo', 'Card_Competitor_competitorID');
-				$crud->fields('accessDate', 'accessAuthorised', 'Venue_venueID', 'Card_issueNo', 'Card_Competitor_competitorID');
+				$crud->columns('accessID', 'accessDate', 'accessAuthorised', 'Venue_venueID', 'Card_cardID');
+				$crud->fields('accessDate', 'accessAuthorised', 'Venue_venueID', 'Card_cardID');
 				$crud->set_relation('Venue_venueID','venue','{venueName}, {venueStadium}');
 				// Compound primary key Competitor_competitorID and issueNo
 				//$crud->set_relation('Card_isueNo','card','{Competitor_competitorID}, {issueNo}');
 				//$crud->set_relation('Card_Competitor_competitorID','competitor','{competitorLastName}, {competitorFirstName}');
-				$crud->required_fields('accessID', 'accessDate', 'accessAuthorised', 'Venue_venueID', 'Card_issueNo', 'Card_Competitor_competitorID');
+				$crud->required_fields('accessID', 'accessDate', 'accessAuthorised', 'Venue_venueID', 'Card_cardID');
 				$crud->display_as('accessID', 'Access ID');
 				$crud->display_as('accessDate', 'Access Date');
 				$crud->display_as('accessAuthorised', 'Authorised Access');
-				$crud->display_as('Card_issueNo', 'Card Issue No.');
-				$crud->display_as('Card_Competitor_competitorID', 'Competitor');
+				$crud->display_as('Card_cardID', 'Card ID');
 				$crud->display_as('Venue_venueID', 'Venue Name, Stadium');
 
 				$output = $crud->render();
@@ -1188,7 +1226,7 @@ class Main extends CI_Controller {
 			$sessiondata = $this->session->userdata('logged_in');
 			$this->load->view('header', $sessiondata);
 			$crud = new grocery_CRUD();
-			$crud->set_theme('flexigrid');
+			$crud->set_theme('datatables');
 			$crud->set_table('issue_log');
 			$crud->set_subject('Issue Log');
 			$crud->columns('issueID', 'issueDescription', 'issueRasiedBy', 'issueRaisedDate', 'issueClosedDate', 'issueClosed', 'Venue_venueID');
@@ -1231,11 +1269,11 @@ class Main extends CI_Controller {
 			$sessiondata = $this->session->userdata('logged_in');
 			$this->load->view('header', $sessiondata);
 			$crud = new grocery_CRUD();
-			$crud->set_theme('flexigrid');
+			$crud->set_theme('datatables');
 			$crud->set_table('team');
 			$crud->set_subject('Team');
-			$crud->columns('teamID', 'teamName', 'teamNickname', 'NFA_nfaID','fixtures');
-			$crud->fields('teamName', 'teamNickname', 'NFA_nfaID','fixtures');
+			$crud->columns('teamID', 'teamName', 'teamNickname', 'NFA_nfaID','fixtures','eliminated');
+			$crud->fields('teamName', 'teamNickname', 'NFA_nfaID','fixtures','eliminated');
 			$crud->set_relation_n_n('fixtures', 'team_has_fixture', 'fixture', 'Team_teamID', 'Fixture_fixtureID', 'fixtureDate');
 			$crud->set_relation('NFA_nfaID','nfa','nfaName');
 			$crud->required_fields('teamID', 'teamName', 'NFA_nfaID');
@@ -1244,6 +1282,7 @@ class Main extends CI_Controller {
 			$crud->display_as('teamNickname', 'Nickname');
 			$crud->display_as('NFA_nfaID', 'NFA');
 			$crud->display_as('fixtures', 'Fixtures');
+			$crud->display_as('eliminated', 'Eliminated');
 
 			$output = $crud->render();
 			$this->team_output($output);
@@ -1265,126 +1304,42 @@ class Main extends CI_Controller {
 			redirect('login', 'refresh');
 		}
 	}
-
-	public function querynav()
-	{
-		if ($this->session->userdata('logged_in'))
-		{
-			$sessiondata = $this->session->userdata('logged_in');
-			$this->load->view('header', $sessiondata);
-			$this->load->view('querynav_view');
-		}
-		else
-		{
-			redirect('login', 'refresh');
-		}
-	}
-
-	public function query1()
-	{
-		if ($this->session->userdata('logged_in'))
-		{
-			$sessiondata = $this->session->userdata('logged_in');
-			$cardSelected = $this->input->post('cardSelected');
-			$this->load->view('header', $sessiondata);
-			$this->load->view('query1_view');
-		}
-		else
-		{
-			redirect('login', 'refresh');
-		}
-	}
-
-	public function query2()
-	{
-		if ($this->session->userdata('logged_in'))
-		{
-			$sessiondata = $this->session->userdata('logged_in');
-			$this->load->view('header', $sessiondata);
-			$this->load->view('query_compList_view');
-		}
-		else
-		{
-			redirect('login', 'refresh');
-		}
-	}
-    
-    public function query3()
-	{
-		if ($this->session->userdata('logged_in'))
-		{
-			$sessiondata = $this->session->userdata('logged_in');
-			$this->load->view('header', $sessiondata);
-			$this->load->view('query3_view');
-		}
-		else
-		{
-			redirect('login', 'refresh');
-		}
-	}
-    
-    public function query4()
-	{
-		if ($this->session->userdata('logged_in'))
-		{
-			$sessiondata = $this->session->userdata('logged_in');
-			$this->load->view('header', $sessiondata);
-			$this->load->view('query4_view');
-		}
-		else
-		{
-			redirect('login', 'refresh');
-		}
-	}
-	
-	
-    
-   /* public function cardSwipe()
-	{
-	   $cardSelected = $this->input->post('cardSelected');
-       $dateList = $this->input->post('dateList');
-       $venueSelected = $this->input->post('venueSelected');
-       
-       echo $dateList; // check if sateList is working
-       
-       $fixtureList = $this->db->query('SELECT * FROM fixture where Venue_venueID = '. $venueSelected.' and fixtureDate = DATE('. $dateList. ') LIMIT 1');
-			// fixtureList lists matches at the SELECTED DATE and VENUE
-	   
-       $authorisationList = $this->db->query('SELECT * FROM title WHERE titleText = "Yippee"');
-       foreach($fixtureList->result() as $fixtureRows)
-       {
-            $authorisationList = $this->db->query('SELECT * FROM authorisation WHERE Fixture_fixtureID = '. $fixtureRows->fixtureID. ' and Card_cardID = '. $cardSelected);
-				// Loop through fixtureList and SELECT the CARDS who have access to the FIXTURE
-       }
-       
-       $authCount = $authorisationList->num_rows();
-			// # of rows in where CARDS have access to selected FIXTURE
-       if ($authCount > 0)
-       {
-        $authorised = 1;
-       }
-       else{
-        $authorised = 0;
-       }
-       
-        $this->db->query('INSERT INTO card_access_log(accessDate, accessAuthorised, Venue_venueID, Card_cardID) values(DATE('. $dateList. '),'. $authorised. ','. $venueSelected.','. $cardSelected. ')');
-        //echo 'INSERT INTO card_access_log(accessDate, accessAuthorised, Venue_venueID, Card_cardID) values('. $dateList. ','. $authorised. ','. $venueSelected.','. $cardSelected. ')';
-	}*/
 	
 	public function compVenueCheck()
 	{
 		if ($this->session->userdata('logged_in'))
 		{
+			$sessiondata = $this->session->userdata('logged_in');
 			$compSelected = $this->input->post('compSelected');
 			//echo $compSelected;
-			$compCanAccess = $this->db->query('SELECT venue.venueName, fixture.fixtureDate FROM competitor
-												JOIN team_has_fixture ON team_has_fixture.Team_teamID = competitor.Team_teamID
-												JOIN fixture ON fixture.fixtureID = team_has_fixture.Fixture_FixtureID
-												JOIN venue ON fixture.Venue_venueID = venue.venueID
-													WHERE competitorID = ' . $compSelected);
-			
-			echo $this->table->generate($compCanAccess);
-			$this->load->view('querynav_view');
+			if ($compSelected == "")
+			{
+				echo ("<SCRIPT LANGUAGE='JavaScript'> 
+						window.alert('Please enter a filter')
+						window.location.href=document.referrer
+						</SCRIPT>");
+				exit();				
+			}
+			else
+			{
+			$compCanAccess = $this->db->query('SELECT venue.venueName AS "Venue", fixture.fixtureDate AS "Date" FROM competitor
+													JOIN team_has_fixture ON team_has_fixture.Team_teamID = competitor.Team_teamID
+													JOIN fixture ON fixture.fixtureID = team_has_fixture.Fixture_FixtureID
+													JOIN venue ON fixture.Venue_venueID = venue.venueID
+														WHERE competitorID = ' . $compSelected);
+				$a = $this->db->query("SELECT * FROM competitor WHERE competitorID = ".$compSelected);
+				foreach ($a->result() as $r)
+				{
+					$first = $r->competitorFirstName;
+					$last = $r->competitorLastName;
+				}
+				
+				$header = array();
+				$header["header"] = "Venues Accessible by ".$first." ".$last;
+				$header["table"] = $this->table->generate($compCanAccess);
+				$this->load->view('header', $sessiondata);
+				$this->load->view('navigation_view',$header);
+			}
 		}
 		else
 		{
@@ -1396,15 +1351,29 @@ class Main extends CI_Controller {
 	{
 		if ($this->session->userdata('logged_in'))
 		{
+			$sessiondata = $this->session->userdata('logged_in');
 			$fixtureSelected = $this->input->post('fixtureSelected');
-			
-			$compsAtFixture = $this->db->query('SELECT Competitor_competitorID, competitorFirstName, competitorLastName FROM card
-												JOIN competitor ON card.Competitor_competitorID = competitor.competitorID
-												JOIN team_has_fixture ON competitor.Team_teamID = team_has_fixture.Team_teamID
-													WHERE Fixture_FixtureID = ' . $fixtureSelected . '');
-			
-			echo $this->table->generate($compsAtFixture);
-			$this->load->view('querynav_view');
+			if ($fixtureSelected == "")
+			{
+				echo ("<SCRIPT LANGUAGE='JavaScript'> 
+						window.alert('Please enter a filter')
+						window.location.href=document.referrer
+						</SCRIPT>");
+				exit();				
+			}
+			else
+			{
+				$compsAtFixture = $this->db->query('SELECT Competitor_competitorID AS "Competitor ID", CONCAT(competitorFirstName , " " , competitorLastName) AS "Competitor Name" FROM card
+													JOIN competitor ON card.Competitor_competitorID = competitor.competitorID
+													JOIN team_has_fixture ON competitor.Team_teamID = team_has_fixture.Team_teamID
+														WHERE Fixture_FixtureID = ' . $fixtureSelected . '');
+
+				$header = array();
+				$header["header"] = "Competitors Authorised for Fixture ".$fixtureSelected;
+				$header["table"] = $this->table->generate($compsAtFixture);
+				$this->load->view('header', $sessiondata);
+				$this->load->view('navigation_view',$header);
+			}
 		}
 		else
 		{
@@ -1412,152 +1381,89 @@ class Main extends CI_Controller {
 		}
 	}
 	
-	public function authCheck()
-	{
-
-		if ($this->session->userdata('logged_in'))
-		{
-      //$this->load->view('header
-      $cardSelected = $this->input->post('cardSelected');
-      $fixtureSelected = $this->input->post('fixtureSelected');
-
-      $this->db->query('drop table if exists authTemp');
-      $this->db->query('create temporary table authTemp AS (SELECT cardValid FROM card
-                        JOIN competitor ON card.Competitor_competitorID = competitor.competitorID
-                        JOIN team_has_fixture ON competitor.Team_teamID = team_has_fixture.Team_teamID
-                          WHERE cardID = '. $cardSelected . ' AND Fixture_fixtureID = ' . $fixtureSelected . ')');
-
-
-      $query = $this->db->query('select * from authTemp');
-      //echo $this->table->generate($query);
-
-      if ($query->num_rows() > 0){
-        echo ("<SCRIPT LANGUAGE='JavaScript'>
-                          window.alert('This Card is Valid!!!')
-                          window.location.href=document.referrer
-                          </SCRIPT>");
-      }else{
-        echo ("<SCRIPT LANGUAGE='JavaScript'>
-                          window.alert('CARD NOT VALID')
-                          window.location.href=document.referrer
-                          </SCRIPT>");
-      }
-		}
-		else
-		{
-			redirect('login', 'refresh');
-		}
-	}
-	
-
 	public function fixtureSwipe()
 	{
 
 		if ($this->session->userdata('logged_in'))
 		{
-      $cardSelected = $this->input->post('cardSelected');
-      $dateList = $this->input->post('dateList');
-      $venueSelected = $this->input->post('venueSelected');
-      $authorised = 0;
+			$cardSelected = $this->input->post('cardSelected');
+			$dateList = $this->input->post('dateList');
+			$venueSelected = $this->input->post('venueSelected');
+			if ($cardSelected == "" || $dateList == "" || $venueSelected == "")
+			{
+				echo ("<SCRIPT LANGUAGE='JavaScript'> 
+						window.alert('Please enter a filter')
+						window.location.href=document.referrer
+						</SCRIPT>");
+				exit();				
+			}
+			else
+			{
+				$authorised = 0;
 
-      //echo 'DateList is ' . $dateList . ' '; // check if sateList is working
-      //echo 'VenueSelected is ' . $venueSelected; // check venue
+				//echo 'DateList is ' . $dateList . ' '; // check if sateList is working
+				//echo 'VenueSelected is ' . $venueSelected; // check venue
 
-      $fixtureList = $this->db->query('SELECT * FROM Fixture WHERE fixtureDate = DATE "' . $dateList . '" AND Venue_venueID = '. $venueSelected .' LIMIT 1');
+				$fixtureList = $this->db->query('SELECT * FROM Fixture WHERE fixtureDate = DATE "' . $dateList . '" AND Venue_venueID = '. $venueSelected .' LIMIT 1');
 
-      //echo $this->table->generate($fixtureList);
-        // fixtureList lists matches at the selected DATE and VENUE
+				//echo $this->table->generate($fixtureList);
+					// fixtureList lists matches at the selected DATE and VENUE
+				
+				if ($fixtureList->num_rows() > 0)
+				{
+					foreach($fixtureList->result() as $fixtureRows)
+					{
+						$authList = $this->db->query('SELECT * FROM authorisation WHERE Fixture_FixtureID = ' . $fixtureRows->fixtureID . ' AND Card_CardID = '. $cardSelected .'');
+						//echo  'authList ' . $this->table->generate($authList);
+						if ($authList->num_rows() > 0)
+						{
+							$authorised = 1;
+						}
+						else
+						{
+							$authorised = 0;
+						}
+					}
+				}
+				else
+				{
+					$authorised = 0;
+				}
 
-
-      foreach($fixtureList->result() as $fixtureRows)
-
-        {
-          if ($fixtureList = true){
-            $authList = $this->db->query('SELECT * FROM authorisation WHERE Fixture_FixtureID = ' . $fixtureRows->fixtureID . ' AND Card_CardID = '. $cardSelected .'');
-            //echo  'authList ' . $this->table->generate($authList);
-            $authorised = 1;
-            echo ("<SCRIPT LANGUAGE='JavaScript'>
-                          window.alert('ACCESS AUTHORISED')
-                          window.location.href=document.referrer
-                          </SCRIPT>");
-          }
-          else{
-            $authorised = 0;
-          }
-        }
-
-
-      $this->db->query('INSERT INTO card_access_log (accessDate, accessAuthorised, Venue_venueID, Card_cardID) VALUES (DATE "' . $dateList .'", ' . $authorised . ', ' . $venueSelected . ', ' . $cardSelected. ')');
-      if ($authorised !=1)  // Tried to use "if authorised = 0" but Alert box doesn't show up
-        {echo ("<SCRIPT LANGUAGE='JavaScript'> 
-            window.alert('ACCESS NOT AUTHORISED')
-            window.location.href=document.referrer
-            </SCRIPT>");
-        }
-
-      // Errors when swiping again after loading this view. Might need temp tables?
+				$a = $this->db->query("SELECT * FROM card WHERE cardID = ".$cardSelected." LIMIT 1");
+				foreach ($a->result() as $r)
+				{
+					$comp = $r->Competitor_competitorID;
+				}
 
 
-        // # of rows in where CARDS have access to selected FIXTURE
+				$this->db->query('INSERT INTO card_access_log (accessDate, accessAuthorised, Venue_venueID, Card_cardID) VALUES (DATE "' . $dateList .'", ' . $authorised . ', ' . $venueSelected . ', ' . $cardSelected. ')');
+				
+				if ($authorised == 1)
+				{
+					echo ("<SCRIPT LANGUAGE='JavaScript'> 
+							window.alert('ACCESS AUTHORISED')
+							window.location.href=document.referrer
+							</SCRIPT>");
+				}
+				else  // Tried to use "if authorised = 0" but Alert box doesn't show up
+				{
+					echo ("<SCRIPT LANGUAGE='JavaScript'> 
+							window.alert('ACCESS NOT AUTHORISED')
+							window.location.href=document.referrer
+							</SCRIPT>");
+				}
+
+				// Errors when swiping again after loading this view. Might need temp tables?
+
+
+					// # of rows in where CARDS have access to selected FIXTURE
+			}
 		}
 		else
 		{
 			redirect('login', 'refresh');
 		}     
-	}
-
-    public function displayTable()
-    {
-		if ($this->session->userdata('logged_in'))
-		{
-		}
-		else
-		{
-			redirect('login', 'refresh');
-		}   
-           
-    }
-
-	public function query_entryAttempts()
-	{
-		if ($this->session->userdata('logged_in'))
-		{
-			$sessiondata = $this->session->userdata('logged_in');
-			$this->load->view('header', $sessiondata);
-			$this->load->view('query_entryAttempts_view');
-		}
-		else
-		{
-			redirect('login', 'refresh');
-		}
-	}
-	
-	public function query_entryLog()
-	{
-		if ($this->session->userdata('logged_in'))
-		{
-			$sessiondata = $this->session->userdata('logged_in');
-			$this->load->view('header', $sessiondata);
-			$this->load->view('query_entryLog_view');
-		}
-		else
-		{
-			redirect('login', 'refresh');
-		}
-	}
-    
-    public function query7()
-	{
-		if ($this->session->userdata('logged_in'))
-		{
-			$sessiondata = $this->session->userdata('logged_in');
-			$this->load->view('header', $sessiondata);
-			$this->load->view('query7_view');
-		}
-		else
-		{
-			redirect('login', 'refresh');
-		}
 	}
 
 	public function blank()

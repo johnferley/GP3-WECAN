@@ -29,29 +29,25 @@ foreach($css_files as $file): ?>
 	<table>
 		<tr>
 		<form action="<?php echo site_url('main/update_valid_card')?>" method="post">
-		<td><div><input style="width: 300px"type="text" name="enterFilter" placeholder="Enter Card IDs (separated by ',') or 'all'" /></div></td>
-		<td><div><button style="width: 150px" type="submit" name="submitForm" value="updateValidityOnCard">Update Card Validity</button></div></td>
+		<td colspan="3"><div><input style="width: 99%"type="text" name="enterFilter" placeholder="Enter Card IDs (separated by ',') or 'all'" /></div></td>
+		<td><div><button style="width: 150px" type="submit" name="submitForm" value="updateValidityOnCard">Update Cards</button></div></td>
 		</form>
 		<form action="<?php echo site_url('main/delete_duplicates')?>" method="post">
 		<td style="width: 100%"><div><button style="float:right; width: 150px" type="submit" name="submitForm" value="deleteDuplicatesOnCard">Delete Duplicates</button></div></td>
 		</form>
 		</tr>
 		<tr>
-		<form action="<?php echo site_url('main/update_new_card')?>" method="post">
-		<td><div><input style="width: 300px" type="text" name="enterFilter" placeholder="Enter Card IDs (separated by ',') or 'all'" /></div></td>
-		<td><div><button style="width: 150px" type="submit" name="submitForm" value="issueNewCardOnCard">Issue Cards if None</button></div></td>
+		</tr>
+		<tr>
+		<form action="<?php echo site_url('main/update_authorisations')?>" method="post">
+		<td colspan="3"><div><input style="width: 99%" type="text" name="enterFilter" placeholder="Enter Card IDs (separated by ',') or 'all'" /></div></td>
+		<td><div><button style="width: 150px" type="submit" name="submitForm" value="updateAuthOnCard">Update Authorisations</button></div></td>
 		</form>
 		<form action="<?php echo site_url('main/delete_orphans')?>" method="post">
 		<td style="width: 100%"><div><button style="float:right; width: 150px" type="submit" name="submitForm" value="deleteOrphansOnCard">Delete Orphans</button></div></td>
 		</form>
 		</tr>
-		<tr>
-		<form action="<?php echo site_url('main/update_authorisations')?>" method="post">
-		<td><div><input style="width: 300px" type="text" name="enterFilter" placeholder="Enter Card IDs (separated by ',') or 'all'" /></div></td>
-		<td><div><button style="width: 150px" type="submit" name="submitForm" value="updateAuthOnCard">Update Authorisations</button></div></td>
-		</form>
-		</tr>
-    <tr>
+    	<tr>
       			<form action= "<?php echo site_url ('main/fixtureSwipe')?>" method = 'post'>
 				<?php 
 					$cardIDs = "<option value = '' disabled selected> Select Card ID </option>";
@@ -74,22 +70,25 @@ foreach($css_files as $file): ?>
 						$swipeVenue .= "<option value=". $row['venueID'].">" . $row['venueName']. "</option>";  // add the row's venue name to swipeVenue
 					}
 					
-					echo ('<td><div style="float: left; width: 150px"> '.
+					echo ('<td><div style="float: left; width: 99%"> '.
 								"<select name='cardSelected'>
 									" . $cardIDs . 
 								"</select></div></td>");
 					
-					echo ('<td><div style="float: left; width: 120px"> '. 
+					echo ('<td><div style="float: left; width: 99%"> '. 
 							$dateList). '</div></td>';
 								
-					echo ('<td><div style="float: left; width: 140px"> '.
+					echo ('<td><div style="float: left; width: 99%"> '.
 								"<select name='venueSelected'>
 									" . $swipeVenue . 
 								"</select></div></td>");
 				?>
 				<td><button type="submit">Simulate Entry</button></td>
-			</form>;
-    </tr>
+			</form>
+		<form action="<?php echo site_url('main/expire_cards')?>" method="post">
+		<td style="width: 100%"><div><button style="float:right; width: 150px" type="submit" name="submitForm" value="expireCardsOnCard">Expire Cards</button></div></td>
+		</form>
+		</tr>
 	</table>
 	</div>
 
